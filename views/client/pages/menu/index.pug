@@ -1,0 +1,169 @@
+extends ../../layouts/default.pug
+block main
+  main
+    // Hero Section
+    section.hero-menu
+      .hero-content
+        p.hero-label Thực đơn
+        h2.hero-title Các Món Ăn Authentic Việt Nam
+        p.hero-description Khám phá danh sách thực đơn được chọn lọc kỹ lưỡng của chúng tôi với các công thức nấu ăn truyền thống và nguyên liệu tươi ngon nhất.
+
+    // Category Filter
+    section.category-filter
+      .filter-container
+        button.category-btn.active(data-filter="all") Tất cả
+        button.category-btn(data-filter="pho") Phở & Súp
+        button.category-btn(data-filter="appetizers") Khai vị
+        button.category-btn(data-filter="mains") Món chính
+        button.category-btn(data-filter="rice") Cơm
+        button.category-btn(data-filter="drinks") Thức uống
+
+    // Menu Items Grid
+    section.menu-items
+      .menu-container
+        .menu-grid
+          // Phở Bò Tái
+          .menu-card
+            .card-image
+              img(src="/images/hero-pho.jpg" alt="Phở Bò Tái")
+              .popular-badge Popular
+            .card-content
+              .card-header
+                h3 Phở Bò Tái
+                .price 145,000₫
+              p.card-description Traditional beef pho with rare steak, rice noodles, fresh herbs, bean sprouts, and lime
+
+          // Phở Bò Viên
+          .menu-card
+            .card-image
+              img(src="/images/hero-pho.jpg" alt="Phở Bò Viên")
+            .card-content
+              .card-header
+                h3 Phở Bò Viên
+                .price 135,000₫
+              p.card-description Beef pho with homemade meatballs in rich bone broth
+
+          // Phở Gà
+          .menu-card
+            .card-image
+              img(src="/images/hero-pho.jpg" alt="Phở Gà")
+            .card-content
+              .card-header
+                h3 Phở Gà
+                .price 125,000₫
+              p.card-description Chicken pho with tender sliced chicken and aromatic broth
+
+          // Gỏi Cuốn
+          .menu-card
+            .card-image
+              img(src="/images/spring-rolls.jpg" alt="Gỏi Cuốn")
+              .popular-badge Popular
+            .card-content
+              .card-header
+                h3 Gỏi Cuốn
+                .price 85,000₫
+              p.card-description Fresh spring rolls with shrimp, pork, rice vermicelli, and peanut dipping sauce
+
+          // Chả Giò
+          .menu-card
+            .card-image
+              img(src="/images/spring-rolls.jpg" alt="Chả Giò")
+            .card-content
+              .card-header
+                h3 Chả Giò
+                .price 75,000₫
+              p.card-description Crispy fried spring rolls with pork and vegetables, served with fish sauce
+
+          // Bánh Mì Thịt Nướng
+          .menu-card
+            .card-image
+              img(src="/images/banh-mi.jpg" alt="Bánh Mì")
+              .popular-badge Popular
+            .card-content
+              .card-header
+                h3 Bánh Mì Thịt Nướng
+                .price 65,000₫
+              p.card-description Crispy baguette with grilled pork, pickled vegetables, cilantro, and pate
+
+          // Bún Chả Hà Nội
+          .menu-card
+            .card-image
+              img(src="/images/bun-cha.jpg" alt="Bún Chả")
+              .popular-badge Popular
+            .card-content
+              .card-header
+                h3 Bún Chả Hà Nội
+                .price 155,000₫
+              p.card-description Grilled pork patties and sliced pork belly with rice noodles and fish sauce
+
+          // Bún Bò Huế
+          .menu-card
+            .card-image
+              img(src="/images/hero-pho.jpg" alt="Bún Bò Huế")
+            .card-content
+              .card-header
+                h3 Bún Bò Huế
+                .price 165,000₫
+              p.card-description Spicy beef noodle soup from Hue with lemongrass and chili oil
+
+          // Cơm Tấm Sườn
+          .menu-card
+            .card-image
+              img(src="/images/bun-cha.jpg" alt="Cơm Tấm")
+            .card-content
+              .card-header
+                h3 Cơm Tấm Sườn
+                .price 125,000₫
+              p.card-description Broken rice with grilled pork chop, pickled vegetables, and fish sauce
+
+          // Cơm Gà Xối Mỡ
+          .menu-card
+            .card-image
+              img(src="/images/bun-cha.jpg" alt="Cơm Gà")
+            .card-content
+              .card-header
+                h3 Cơm Gà Xối Mỡ
+                .price 135,000₫
+              p.card-description Crispy fried chicken served with steamed rice and pickled vegetables
+
+          // Cà Phê Sữa Đá
+          .menu-card
+            .card-image
+              img(src="/images/hero-pho.jpg" alt="Cà Phê")
+            .card-content
+              .card-header
+                h3 Cà Phê Sữa Đá
+                .price 45,000₫
+              p.card-description Traditional Vietnamese iced coffee with condensed milk
+
+          // Trà Sen
+          .menu-card
+            .card-image
+              img(src="/images/hero-pho.jpg" alt="Trà Sen")
+            .card-content
+              .card-header
+                h3 Trà Sen
+                .price 35,000₫
+              p.card-description Fragrant lotus tea served hot or iced
+
+    // Dietary Note
+    section.dietary-note
+      .note-container
+        p Vui lòng thông báo cho nhân viên của chúng tôi nếu có bất kỳ dị ứng thực phẩm hoặc yêu cầu chế độ ăn kiêng. Các tùy chọn chay và không gluten có sẵn khi yêu cầu.
+
+  // Footer
+  footer.footer
+    .footer-container
+      .footer-section
+        h4 Phở Saigon
+        p Nhà hàng Việt Nam Authentic
+      .footer-section
+        h4 Liên hệ
+        p Điện thoại: +84 (0) 123 456 789
+        p Email: hello@phosaigon.com
+      .footer-section
+        h4 Giờ mở cửa
+        p Thứ 2 - Chủ nhật: 11:00 - 23:00
+        p Đóng cửa thứ 2
+
+  script(src="menu.js")
