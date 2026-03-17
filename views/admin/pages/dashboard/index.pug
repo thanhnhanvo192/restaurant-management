@@ -1,0 +1,202 @@
+extends ../../layouts/default.pug
+
+block main 
+  //- Main Content
+  main.main-content
+    //- Page Header
+    header.page-header
+      div
+        h1.page-title Tổng quan
+        p.page-subtitle Xin chào! Đây là tổng quan hoạt động nhà hàng hôm nay.
+      
+      .user-menu
+        button.btn.btn-outline
+          svg(xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9")
+        .user-avatar A
+
+    //- Stats Grid
+    section.stats-grid
+      .stat-card
+        .stat-header
+          span.stat-label Doanh thu hôm nay
+          .stat-icon.gold
+            svg(xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+              path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z")
+        .stat-value 15.8M₫
+        .stat-trend.positive
+          svg(xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18")
+          span +12.5% so với hôm qua
+
+      .stat-card
+        .stat-header
+          span.stat-label Đặt bàn hôm nay
+          .stat-icon.green
+            svg(xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+              path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z")
+        .stat-value 24
+        .stat-trend.positive
+          svg(xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18")
+          span +8.3% so với hôm qua
+
+      .stat-card
+        .stat-header
+          span.stat-label Khách hàng
+          .stat-icon.blue
+            svg(xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+              path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z")
+        .stat-value 156
+        .stat-trend.positive
+          svg(xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18")
+          span +5.2% so với tuần trước
+
+      .stat-card
+        .stat-header
+          span.stat-label Đánh giá trung bình
+          .stat-icon.red
+            svg(xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+              path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z")
+        .stat-value 4.8/5
+        .stat-trend.negative
+          svg(xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor")
+            path(stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3")
+          span -0.1 so với tháng trước
+
+    //- Charts Grid
+    section.charts-grid
+      .chart-card
+        .chart-header
+          h3.chart-title Doanh thu tuần này
+          p.chart-subtitle Tổng doanh thu theo ngày trong tuần
+        .chart-container
+          .chart-bar(style="height: 60%")
+            span.chart-bar-label T2
+          .chart-bar(style="height: 75%")
+            span.chart-bar-label T3
+          .chart-bar(style="height: 45%")
+            span.chart-bar-label T4
+          .chart-bar(style="height: 90%")
+            span.chart-bar-label T5
+          .chart-bar(style="height: 85%")
+            span.chart-bar-label T6
+          .chart-bar(style="height: 100%")
+            span.chart-bar-label T7
+          .chart-bar(style="height: 95%")
+            span.chart-bar-label CN
+
+      .chart-card
+        .chart-header
+          h3.chart-title Món ăn phổ biến
+          p.chart-subtitle Top 5 món được đặt nhiều nhất
+        .pie-chart-container
+          .pie-chart
+          .pie-legend
+            .pie-legend-item
+              span.pie-legend-color(style="background-color: var(--chart-1)")
+              span Phở bò đặc biệt (35%)
+            .pie-legend-item
+              span.pie-legend-color(style="background-color: var(--chart-2)")
+              span Bún chả Hà Nội (20%)
+            .pie-legend-item
+              span.pie-legend-color(style="background-color: var(--chart-3)")
+              span Bánh mì thịt nướng (20%)
+            .pie-legend-item
+              span.pie-legend-color(style="background-color: var(--chart-4)")
+              span Gỏi cuốn tôm thịt (15%)
+            .pie-legend-item
+              span.pie-legend-color(style="background-color: var(--chart-5)")
+              span Cơm tấm sườn (10%)
+
+    //- Recent Bookings Table
+    section.table-card
+      .table-header
+        h3.table-title Đặt bàn gần đây
+        p.table-subtitle Danh sách các đơn đặt bàn mới nhất
+      
+      table
+        thead
+          tr
+            th Khách hàng
+            th Ngày
+            th Giờ
+            th Số khách
+            th Trạng thái
+            th Thao tác
+        tbody
+          tr
+            td
+              .customer-info
+                .customer-avatar NT
+                div
+                  .customer-name Nguyễn Văn Thành
+                  .customer-email thanh.nguyen@email.com
+            td 16/03/2026
+            td 18:30
+            td 4 người
+            td
+              span.badge.confirmed Đã xác nhận
+            td
+              button.btn.btn-outline Chi tiết
+          
+          tr
+            td
+              .customer-info
+                .customer-avatar TL
+                div
+                  .customer-name Trần Thị Lan
+                  .customer-email lan.tran@email.com
+            td 16/03/2026
+            td 19:00
+            td 2 người
+            td
+              span.badge.pending Chờ xác nhận
+            td
+              button.btn.btn-outline Chi tiết
+          
+          tr
+            td
+              .customer-info
+                .customer-avatar PM
+                div
+                  .customer-name Phạm Minh Đức
+                  .customer-email duc.pham@email.com
+            td 16/03/2026
+            td 19:30
+            td 6 người
+            td
+              span.badge.confirmed Đã xác nhận
+            td
+              button.btn.btn-outline Chi tiết
+          
+          tr
+            td
+              .customer-info
+                .customer-avatar LH
+                div
+                  .customer-name Lê Hoàng Anh
+                  .customer-email anh.le@email.com
+            td 17/03/2026
+            td 12:00
+            td 3 người
+            td
+              span.badge.pending Chờ xác nhận
+            td
+              button.btn.btn-outline Chi tiết
+          
+          tr
+            td
+              .customer-info
+                .customer-avatar VT
+                div
+                  .customer-name Võ Thanh Tùng
+                  .customer-email tung.vo@email.com
+            td 17/03/2026
+            td 18:00
+            td 8 người
+            td
+              span.badge.cancelled Đã hủy
+            td
+              button.btn.btn-outline Chi tiết

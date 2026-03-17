@@ -1,0 +1,151 @@
+extends ../../layouts/default.pug
+block main
+  main
+    //- Hero Section
+    section.hero
+      .hero-background
+        img(src="/images/restaurant-interior.jpg" alt="Restaurant interior")
+        .hero-overlay
+      
+      .hero-content
+        p.hero-subtitle Authentic Vietnamese Cuisine
+        h1.hero-title
+          | Experience the True
+          br
+          span.text-primary Flavors of Vietnam
+        p.hero-description
+          | From steaming bowls of phở to crispy bánh mì, every dish tells a story 
+          | of tradition, passion, and authentic Vietnamese craftsmanship.
+        
+        .hero-buttons
+          a.btn.btn-primary(href="#booking")
+            | Reserve a Table
+            span.arrow →
+          a.btn.btn-outline(href="#menu") View Menu
+
+    //- Stats Section
+    section.stats
+      .stats-container
+        .stat-item
+          .stat-icon ⭐
+          .stat-value 4.9
+          .stat-label Rating
+
+        .stat-item
+          .stat-icon 👥
+          .stat-value 50K+
+          .stat-label Happy Guests
+
+        .stat-item
+          .stat-icon ⏱️
+          .stat-value 30+
+          .stat-label Years
+
+        .stat-item
+          .stat-icon 🏆
+          .stat-value 15
+          .stat-label Awards
+
+    //- Featured Dishes
+    section.dishes
+      .dishes-container
+        .section-header
+          p.section-subtitle Our Specialties
+          h2.section-title Signature Dishes
+
+        .dishes-grid
+          .dish-card
+            .dish-image
+              img(src="/images/hero-pho.jpg" alt="Phở Bò Tái")
+            .dish-content
+              .dish-header
+                h3.dish-name Phở Bò Tái
+                .dish-price 145,000₫
+              p.dish-description Traditional beef pho with rare steak, rice noodles, and aromatic herbs
+
+          .dish-card
+            .dish-image
+              img(src="/images/spring-rolls.jpg" alt="Gỏi Cuốn")
+            .dish-content
+              .dish-header
+                h3.dish-name Gỏi Cuốn
+                .dish-price 85,000₫
+              p.dish-description Fresh spring rolls with shrimp, pork, herbs, and peanut sauce
+
+          .dish-card
+            .dish-image
+              img(src="/images/banh-mi.jpg" alt="Bánh Mì Thịt Nướng")
+            .dish-content
+              .dish-header
+                h3.dish-name Bánh Mì Thịt Nướng
+                .dish-price 65,000₫
+              p.dish-description Crispy baguette with grilled pork, pickled vegetables, and pate
+
+        .view-menu-btn
+          a.btn.btn-outline(href="#menu")
+            | View Full Menu
+            span.arrow →
+
+    //- About Section
+    section.about
+      .about-container
+        .about-image
+          img(src="/images/chef.jpg" alt="Our Head Chef")
+
+        .about-content
+          p.section-subtitle Our Story
+          h2.section-title A Legacy of Authentic Vietnamese Flavors
+          
+          p.about-text
+            | Founded over three decades ago, Phở Saigon has been serving the most 
+            | authentic Vietnamese cuisine in the heart of the city. Our recipes 
+            | have been passed down through generations, preserving the true essence 
+            | of Vietnamese culinary traditions.
+
+          p.about-text
+            | Every dish is crafted with the freshest ingredients, aromatic herbs, 
+            | and time-honored techniques that bring the vibrant streets of Vietnam 
+            | right to your table.
+
+          .award-badge
+            .award-icon 🏆
+            .award-text
+              p.award-title Award-Winning Cuisine
+              p.award-subtitle Best Vietnamese Restaurant 2024
+
+    //- CTA Section
+    section.cta
+      .cta-background
+        img(src="/images/bun-cha.jpg" alt="Bun Cha")
+        .cta-overlay
+
+      .cta-content
+        h2.section-title Ready to Experience Vietnam?
+        p.cta-description
+          | Book your table now and embark on a culinary journey through the 
+          | authentic flavors of Vietnamese cuisine.
+        a.btn.btn-primary(href="#booking")
+          | Make a Reservation
+          span.arrow →
+
+  //- Footer
+  footer.footer
+    .footer-container
+      .footer-section
+        h4 About
+        p Authentic Vietnamese restaurant serving traditional cuisine since 1994.
+
+      .footer-section
+        h4 Hours
+        p Monday - Sunday
+        p 11:00 AM - 10:00 PM
+
+      .footer-section
+        h4 Contact
+        p Phone: (+84) 123-456-789
+        p Email: hello@phosaigon.com
+
+      .footer-section
+        h4 Address
+        p 123 Vietnamese Street
+        p District 1, Ho Chi Minh City
