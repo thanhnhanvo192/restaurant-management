@@ -20,6 +20,8 @@ import {
   ListOrdered,
 } from "lucide-react";
 
+const prefixAdmin = "/admin";
+
 const data = {
   user: {
     name: "Võ Thành Nhân",
@@ -29,37 +31,37 @@ const data = {
   documents: [
     {
       name: "Dashboard",
-      url: "#",
+      url: `${prefixAdmin}/dashboard`,
       icon: <LayoutDashboard />,
     },
     {
       name: "Quản lý bàn",
-      url: "#",
+      url: `${prefixAdmin}/tables`,
       icon: <Table />,
     },
     {
       name: "Thực đơn",
-      url: "#",
+      url: `${prefixAdmin}/menu`,
       icon: <Menu />,
     },
     {
       name: "Nhân sự",
-      url: "#",
+      url: `${prefixAdmin}/staff`,
       icon: <User2 />,
     },
     {
       name: "Khách hàng",
-      url: "#",
+      url: `${prefixAdmin}/customers`,
       icon: <UserCircle2 />,
     },
     {
       name: "Đơn hàng",
-      url: "#",
+      url: `${prefixAdmin}/orders`,
       icon: <ListOrdered />,
     },
     {
       name: "Thống kê",
-      url: "#",
+      url: `${prefixAdmin}/reports`,
       icon: <StarOff />,
     },
   ],

@@ -4,14 +4,20 @@ import HomePage from "./pages/HomePage";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashborad";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import Table from "./pages/Table";
+import AdminLayout from "./layouts/AdminLayout";
 
 function App() {
   return (
     <TooltipProvider>
       <BrowserRouter>
         <Routes>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="tables" element={<Table />} />
+          </Route>
+
           <Route path="/" element={<HomePage />} />
-          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
