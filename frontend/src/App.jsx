@@ -10,6 +10,7 @@ import AdminLayout from "./layouts/AdminLayout";
 import Staff from "./pages/Staff/Staff";
 import ManageCustomersPage from "./pages/Customer/ManageCustomersPage";
 import ManageInvoicesPage from "./pages/Invoice/ManageInvoicesPage";
+import AnalyticsDashboardPage from "./pages/Analytics/AnalyticsDashboardPage";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             <Route path="staff" element={<Staff />} />
             <Route path="customers" element={<ManageCustomersPage />} />
             <Route path="orders" element={<ManageInvoicesPage />} />
+            <Route path="reports" element={<AnalyticsDashboardPage />} />
           </Route>
 
           <Route path="/" element={<HomePage />} />
