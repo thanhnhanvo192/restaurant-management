@@ -607,7 +607,7 @@ const ManageMenuPage = () => {
               </Button>
             </div>
 
-            <div className="overflow-hidden rounded-lg border">
+            <div className="overflow-hidden border rounded-lg">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -630,7 +630,7 @@ const ManageMenuPage = () => {
                     <TableHead>Tên món</TableHead>
                     <TableHead className="w-36">Giá bán</TableHead>
                     <TableHead className="w-44">Trạng thái</TableHead>
-                    <TableHead className="w-28 text-right">Hành động</TableHead>
+                    <TableHead className="text-right w-28">Hành động</TableHead>
                   </TableRow>
                 </TableHeader>
 
@@ -805,7 +805,7 @@ const ManageMenuPage = () => {
               {categories.map((category) => (
                 <div
                   key={category.id}
-                  className="flex items-center justify-between rounded-md border px-3 py-2"
+                  className="flex items-center justify-between px-3 py-2 border rounded-md"
                 >
                   <span className="text-sm font-medium">{category.name}</span>
                   <div className="flex items-center gap-1">
@@ -914,7 +914,7 @@ const ManageMenuPage = () => {
                 onChange={handleUploadImage}
               />
               {imagePreview ? (
-                <Avatar className="size-16 rounded-lg after:rounded-lg">
+                <Avatar className="rounded-lg size-16 after:rounded-lg">
                   <AvatarImage src={imagePreview} alt="preview" />
                   <AvatarFallback>
                     <UtensilsCrossed className="size-4" />
