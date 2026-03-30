@@ -41,321 +41,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import api from "@/lib/axios";
 
 const PAGE_SIZE = 5;
-
-const MOCK_CUSTOMERS = [
-  {
-    id: 1,
-    name: "Nguyen Tuan Kiet",
-    phone: "0901234567",
-    tier: "bronze",
-    points: 320,
-    joinedAt: "2025-12-12",
-    lastVisitAt: "2026-03-26T18:30:00",
-    isLocked: false,
-    note: "Thích ngồi gần cửa sổ, dị ứng đậu phộng.",
-    recentOrders: [
-      {
-        id: "OD-3201",
-        date: "2026-03-26",
-        total: 520000,
-        status: "Đã thanh toán",
-      },
-      {
-        id: "OD-3177",
-        date: "2026-03-17",
-        total: 345000,
-        status: "Đã thanh toán",
-      },
-      {
-        id: "OD-3098",
-        date: "2026-02-28",
-        total: 610000,
-        status: "Đã thanh toán",
-      },
-    ],
-  },
-  {
-    id: 2,
-    name: "Tran Ngoc Bich",
-    phone: "0912345678",
-    tier: "silver",
-    points: 840,
-    joinedAt: "2026-03-03",
-    lastVisitAt: "2026-03-24T20:15:00",
-    isLocked: false,
-    note: "Ưu tiên bàn yên tĩnh cho gia đình.",
-    recentOrders: [
-      {
-        id: "OD-3199",
-        date: "2026-03-24",
-        total: 780000,
-        status: "Đã thanh toán",
-      },
-      {
-        id: "OD-3144",
-        date: "2026-03-10",
-        total: 460000,
-        status: "Đã thanh toán",
-      },
-      {
-        id: "OD-3041",
-        date: "2026-02-20",
-        total: 290000,
-        status: "Đã thanh toán",
-      },
-    ],
-  },
-  {
-    id: 3,
-    name: "Le Hoang Long",
-    phone: "0933777888",
-    tier: "gold",
-    points: 1500,
-    joinedAt: "2025-10-21",
-    lastVisitAt: "2026-03-25T12:10:00",
-    isLocked: false,
-    note: "Hay đặt suất trưa công ty.",
-    recentOrders: [
-      {
-        id: "OD-3200",
-        date: "2026-03-25",
-        total: 1250000,
-        status: "Đã thanh toán",
-      },
-      {
-        id: "OD-3120",
-        date: "2026-03-08",
-        total: 940000,
-        status: "Đã thanh toán",
-      },
-      {
-        id: "OD-2997",
-        date: "2026-02-11",
-        total: 670000,
-        status: "Đã thanh toán",
-      },
-    ],
-  },
-  {
-    id: 4,
-    name: "Pham Quynh Anh",
-    phone: "0988111222",
-    tier: "diamond",
-    points: 2800,
-    joinedAt: "2024-08-19",
-    lastVisitAt: "2026-03-20T19:00:00",
-    isLocked: false,
-    note: "Khách VIP, thường đặt bàn trước cuối tuần.",
-    recentOrders: [
-      {
-        id: "OD-3181",
-        date: "2026-03-20",
-        total: 1860000,
-        status: "Đã thanh toán",
-      },
-      {
-        id: "OD-3090",
-        date: "2026-02-27",
-        total: 2010000,
-        status: "Đã thanh toán",
-      },
-      {
-        id: "OD-2952",
-        date: "2026-02-02",
-        total: 980000,
-        status: "Đã thanh toán",
-      },
-    ],
-  },
-  {
-    id: 5,
-    name: "Vo Gia Bao",
-    phone: "0977444555",
-    tier: "bronze",
-    points: 210,
-    joinedAt: "2026-02-11",
-    lastVisitAt: "2026-03-18T21:45:00",
-    isLocked: false,
-    note: "Có con nhỏ, cần ghế em bé.",
-    recentOrders: [
-      {
-        id: "OD-3165",
-        date: "2026-03-18",
-        total: 410000,
-        status: "Đã thanh toán",
-      },
-      {
-        id: "OD-3104",
-        date: "2026-03-01",
-        total: 330000,
-        status: "Đã thanh toán",
-      },
-      {
-        id: "OD-3018",
-        date: "2026-02-15",
-        total: 295000,
-        status: "Đã thanh toán",
-      },
-    ],
-  },
-  {
-    id: 6,
-    name: "Dang Minh Chau",
-    phone: "0966555777",
-    tier: "silver",
-    points: 910,
-    joinedAt: "2026-03-10",
-    lastVisitAt: "2026-03-27T11:40:00",
-    isLocked: false,
-    note: "Ưa món chay, cần tư vấn menu phù hợp.",
-    recentOrders: [
-      {
-        id: "OD-3202",
-        date: "2026-03-27",
-        total: 560000,
-        status: "Đã thanh toán",
-      },
-      {
-        id: "OD-3159",
-        date: "2026-03-16",
-        total: 490000,
-        status: "Đã thanh toán",
-      },
-      {
-        id: "OD-3086",
-        date: "2026-02-26",
-        total: 420000,
-        status: "Đã thanh toán",
-      },
-    ],
-  },
-  {
-    id: 7,
-    name: "Bui Anh Khoa",
-    phone: "0944999000",
-    tier: "gold",
-    points: 1680,
-    joinedAt: "2025-06-14",
-    lastVisitAt: "2026-03-14T18:00:00",
-    isLocked: true,
-    note: "Khách đoàn nhỏ, thường 6-8 người.",
-    recentOrders: [
-      {
-        id: "OD-3149",
-        date: "2026-03-14",
-        total: 1450000,
-        status: "Đã thanh toán",
-      },
-      {
-        id: "OD-3071",
-        date: "2026-02-22",
-        total: 990000,
-        status: "Đã thanh toán",
-      },
-      {
-        id: "OD-2968",
-        date: "2026-02-05",
-        total: 870000,
-        status: "Đã thanh toán",
-      },
-    ],
-  },
-  {
-    id: 8,
-    name: "Do Thu Trang",
-    phone: "0922777888",
-    tier: "bronze",
-    points: 150,
-    joinedAt: "2026-03-16",
-    lastVisitAt: "2026-03-22T17:30:00",
-    isLocked: false,
-    note: "Thích món ít cay.",
-    recentOrders: [
-      {
-        id: "OD-3188",
-        date: "2026-03-22",
-        total: 280000,
-        status: "Đã thanh toán",
-      },
-      {
-        id: "OD-3128",
-        date: "2026-03-09",
-        total: 360000,
-        status: "Đã thanh toán",
-      },
-      {
-        id: "OD-3055",
-        date: "2026-02-21",
-        total: 215000,
-        status: "Đã thanh toán",
-      },
-    ],
-  },
-  {
-    id: 9,
-    name: "Hoang Trung Hieu",
-    phone: "0911666777",
-    tier: "diamond",
-    points: 3210,
-    joinedAt: "2024-03-05",
-    lastVisitAt: "2026-03-23T19:25:00",
-    isLocked: false,
-    note: "Khách doanh nghiệp, cần hóa đơn VAT.",
-    recentOrders: [
-      {
-        id: "OD-3192",
-        date: "2026-03-23",
-        total: 2300000,
-        status: "Đã thanh toán",
-      },
-      {
-        id: "OD-3111",
-        date: "2026-03-04",
-        total: 1740000,
-        status: "Đã thanh toán",
-      },
-      {
-        id: "OD-3009",
-        date: "2026-02-14",
-        total: 1520000,
-        status: "Đã thanh toán",
-      },
-    ],
-  },
-  {
-    id: 10,
-    name: "Mai Lan Huong",
-    phone: "0909000111",
-    tier: "silver",
-    points: 700,
-    joinedAt: "2025-11-30",
-    lastVisitAt: "2026-03-12T20:05:00",
-    isLocked: false,
-    note: "Sinh nhật tháng 4, ưu tiên gửi ưu đãi.",
-    recentOrders: [
-      {
-        id: "OD-3141",
-        date: "2026-03-12",
-        total: 640000,
-        status: "Đã thanh toán",
-      },
-      {
-        id: "OD-3060",
-        date: "2026-02-23",
-        total: 510000,
-        status: "Đã thanh toán",
-      },
-      {
-        id: "OD-2989",
-        date: "2026-02-09",
-        total: 390000,
-        status: "Đã thanh toán",
-      },
-    ],
-  },
-];
 
 const tierMap = {
   bronze: "Đồng",
@@ -385,7 +73,7 @@ const formatDate = (dateValue) => {
   return `${day}/${month}/${year}`;
 };
 
-const getInitials = (name) => {
+const getInitials = (name = "") => {
   const words = name.trim().split(" ").filter(Boolean);
   if (!words.length) return "KH";
   return words
@@ -421,7 +109,7 @@ function CustomerStats({ totalCustomers, newCustomersInMonth }) {
             <CardTitle className="text-base font-medium text-blue-900">
               Tổng số khách hàng
             </CardTitle>
-            <div className="rounded-xl bg-blue-100 p-2 text-blue-700">
+            <div className="p-2 text-blue-700 bg-blue-100 rounded-xl">
               <Users className="size-5" />
             </div>
           </div>
@@ -442,7 +130,7 @@ function CustomerStats({ totalCustomers, newCustomersInMonth }) {
             <CardTitle className="text-base font-medium text-emerald-900">
               Khách hàng mới trong tháng
             </CardTitle>
-            <div className="rounded-xl bg-emerald-100 p-2 text-emerald-700">
+            <div className="p-2 rounded-xl bg-emerald-100 text-emerald-700">
               <TrendingUp className="size-5" />
             </div>
           </div>
@@ -595,7 +283,7 @@ function CustomerTable({
           </TableBody>
         </Table>
 
-        <div className="flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 pt-4 border-t sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-muted-foreground">
             Hiển thị {customers.length} khách hàng
           </p>
@@ -651,7 +339,7 @@ function CustomerDetailSheet({
             Chưa chọn khách hàng.
           </div>
         ) : (
-          <div className="flex-1 space-y-5 overflow-y-auto px-4 pb-4">
+          <div className="flex-1 px-4 pb-4 space-y-5 overflow-y-auto">
             <Card>
               <CardContent className="pt-5">
                 <div className="flex items-start gap-3">
@@ -749,12 +437,26 @@ function CustomerDetailSheet({
 }
 
 const ManageCustomersPage = () => {
-  const [customers, setCustomers] = useState(MOCK_CUSTOMERS);
+  const [customers, setCustomers] = useState([{}]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [noteDraft, setNoteDraft] = useState("");
+
+  const fetchCustomers = async () => {
+    try {
+      const res = await api.get("/admin/customers");
+      setCustomers(res.data.customers);
+      console.log(customers);
+    } catch (error) {
+      console.error("Lỗi khi tải danh sách khách hàng:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
 
   const filteredCustomers = useMemo(() => {
     const normalized = searchTerm.trim().toLowerCase();
@@ -846,7 +548,7 @@ const ManageCustomersPage = () => {
   };
 
   return (
-    <section className="space-y-6 p-4 md:p-6">
+    <section className="p-4 space-y-6 md:p-6">
       <div className="space-y-1">
         <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
           Quản lý khách hàng
@@ -864,7 +566,7 @@ const ManageCustomersPage = () => {
       <Card>
         <CardContent className="pt-6">
           <div className="relative max-w-xl">
-            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="absolute -translate-y-1/2 pointer-events-none top-1/2 left-3 size-4 text-muted-foreground" />
             <Input
               value={searchTerm}
               onChange={(event) => {
@@ -872,7 +574,7 @@ const ManageCustomersPage = () => {
                 setCurrentPage(1);
               }}
               placeholder="Tìm theo tên khách hàng hoặc số điện thoại"
-              className="h-11 border-2 border-blue-200 pl-9 focus-visible:border-blue-400"
+              className="border-2 border-blue-200 h-11 pl-9 focus-visible:border-blue-400"
             />
           </div>
         </CardContent>

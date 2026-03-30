@@ -58,6 +58,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import api from "@/lib/axios";
 
 const PAGE_SIZE = 6;
 const VAT_RATE = 0.08;
@@ -89,192 +90,6 @@ const currencyFormatter = new Intl.NumberFormat("vi-VN", {
   currency: "VND",
   maximumFractionDigits: 0,
 });
-
-const MOCK_INVOICES = [
-  {
-    id: "HD20260328-001",
-    tableLabel: "Bàn 05",
-    paymentMethod: "cash",
-    status: "success",
-    createdAt: "2026-03-28T10:05:00",
-    customer: {
-      ten: "Nguyen Minh Duc",
-      sdt: "0901234567",
-      email: "duc.nguyen@email.com",
-    },
-    items: [
-      { name: "Bò lúc lắc", quantity: 1, unitPrice: 185000 },
-      { name: "Súp bí đỏ", quantity: 2, unitPrice: 69000 },
-      { name: "Trà đào cam sả", quantity: 2, unitPrice: 55000 },
-    ],
-  },
-  {
-    id: "HD20260328-002",
-    tableLabel: "Bàn VIP 02",
-    paymentMethod: "card",
-    status: "success",
-    createdAt: "2026-03-28T11:42:00",
-    customer: {
-      ten: "Tran Ngoc Bich",
-      sdt: "0912345678",
-      email: "bich.tran@email.com",
-    },
-    items: [
-      { name: "Cá hồi sốt bơ chanh", quantity: 2, unitPrice: 245000 },
-      { name: "Cheesecake việt quất", quantity: 2, unitPrice: 79000 },
-      { name: "Soda chanh bạc hà", quantity: 3, unitPrice: 49000 },
-    ],
-  },
-  {
-    id: "HD20260328-003",
-    tableLabel: "Bàn 12",
-    paymentMethod: "transfer",
-    status: "canceled",
-    createdAt: "2026-03-28T12:26:00",
-    customer: {
-      ten: "Le Hoang Long",
-      sdt: "0933777888",
-      email: "long.le@email.com",
-    },
-    items: [
-      { name: "Mì Ý sốt bò bằm", quantity: 2, unitPrice: 135000 },
-      { name: "Trà đào cam sả", quantity: 1, unitPrice: 55000 },
-    ],
-  },
-  {
-    id: "HD20260327-004",
-    tableLabel: "Bàn 03",
-    paymentMethod: "cash",
-    status: "success",
-    createdAt: "2026-03-27T19:10:00",
-    customer: {
-      ten: "Pham Quynh Anh",
-      sdt: "0988111222",
-      email: "quynhanh.pham@email.com",
-    },
-    items: [
-      { name: "Salad cá ngừ", quantity: 1, unitPrice: 95000 },
-      { name: "Bò lúc lắc", quantity: 1, unitPrice: 185000 },
-      { name: "Soda chanh bạc hà", quantity: 2, unitPrice: 49000 },
-    ],
-  },
-  {
-    id: "HD20260327-005",
-    tableLabel: "Bàn VIP 01",
-    paymentMethod: "card",
-    status: "success",
-    createdAt: "2026-03-27T20:20:00",
-    customer: {
-      ten: "Dang Minh Chau",
-      sdt: "0966555777",
-      email: "chau.dang@email.com",
-    },
-    items: [
-      { name: "Cá hồi sốt bơ chanh", quantity: 1, unitPrice: 245000 },
-      { name: "Bò lúc lắc", quantity: 2, unitPrice: 185000 },
-      { name: "Cheesecake việt quất", quantity: 1, unitPrice: 79000 },
-    ],
-  },
-  {
-    id: "HD20260326-006",
-    tableLabel: "Bàn 09",
-    paymentMethod: "transfer",
-    status: "success",
-    createdAt: "2026-03-26T18:40:00",
-    customer: {
-      ten: "Vo Gia Bao",
-      sdt: "0977444555",
-      email: "",
-    },
-    items: [
-      { name: "Mì Ý sốt bò bằm", quantity: 2, unitPrice: 135000 },
-      { name: "Súp bí đỏ", quantity: 1, unitPrice: 69000 },
-      { name: "Trà đào cam sả", quantity: 2, unitPrice: 55000 },
-    ],
-  },
-  {
-    id: "HD20260325-007",
-    tableLabel: "Bàn 01",
-    paymentMethod: "cash",
-    status: "success",
-    createdAt: "2026-03-25T12:05:00",
-    customer: {
-      ten: "Do Thu Trang",
-      sdt: "0922777888",
-      email: "trang.do@email.com",
-    },
-    items: [
-      { name: "Salad cá ngừ", quantity: 1, unitPrice: 95000 },
-      { name: "Soda chanh bạc hà", quantity: 1, unitPrice: 49000 },
-    ],
-  },
-  {
-    id: "HD20260324-008",
-    tableLabel: "Bàn 07",
-    paymentMethod: "card",
-    status: "canceled",
-    createdAt: "2026-03-24T21:05:00",
-    customer: {
-      ten: "Bui Anh Khoa",
-      sdt: "0944999000",
-      email: "",
-    },
-    items: [
-      { name: "Bò lúc lắc", quantity: 1, unitPrice: 185000 },
-      { name: "Trà đào cam sả", quantity: 1, unitPrice: 55000 },
-    ],
-  },
-  {
-    id: "HD20260323-009",
-    tableLabel: "Bàn VIP 03",
-    paymentMethod: "transfer",
-    status: "success",
-    createdAt: "2026-03-23T19:35:00",
-    customer: {
-      ten: "Hoang Trung Hieu",
-      sdt: "0911666777",
-      email: "hieu.hoang@email.com",
-    },
-    items: [
-      { name: "Cá hồi sốt bơ chanh", quantity: 2, unitPrice: 245000 },
-      { name: "Soda chanh bạc hà", quantity: 4, unitPrice: 49000 },
-    ],
-  },
-  {
-    id: "HD20260322-010",
-    tableLabel: "Bàn 10",
-    paymentMethod: "cash",
-    status: "success",
-    createdAt: "2026-03-22T17:25:00",
-    customer: {
-      ten: "Mai Lan Huong",
-      sdt: "0909000111",
-      email: "huong.mai@email.com",
-    },
-    items: [
-      { name: "Mì Ý sốt bò bằm", quantity: 1, unitPrice: 135000 },
-      { name: "Cheesecake việt quất", quantity: 2, unitPrice: 79000 },
-      { name: "Trà đào cam sả", quantity: 1, unitPrice: 55000 },
-    ],
-  },
-  {
-    id: "HD20260321-011",
-    tableLabel: "Bàn 04",
-    paymentMethod: "card",
-    status: "success",
-    createdAt: "2026-03-21T20:45:00",
-    customer: {
-      ten: "Nguyen Tuan Kiet",
-      sdt: "0901112233",
-      email: "kiet.nguyen@email.com",
-    },
-    items: [
-      { name: "Bò lúc lắc", quantity: 1, unitPrice: 185000 },
-      { name: "Súp bí đỏ", quantity: 2, unitPrice: 69000 },
-      { name: "Soda chanh bạc hà", quantity: 2, unitPrice: 49000 },
-    ],
-  },
-];
 
 const toInvoiceWithTotals = (invoice) => {
   const subtotal = invoice.items.reduce(
@@ -425,7 +240,7 @@ function InvoiceTable({
                       </div>
                     </TableCell>
                     <TableCell className="font-semibold text-right text-slate-900">
-                      {currencyFormatter.format(invoice.total)}
+                      {currencyFormatter.format(invoice.totalAmount)}
                     </TableCell>
                     <TableCell>
                       <span className="inline-flex items-center gap-1.5 text-sm">
@@ -601,15 +416,27 @@ function InvoiceDetailDialog({ invoice, open, onOpenChange }) {
 }
 
 const ManageInvoicesPage = () => {
-  const [invoices] = useState(() =>
-    MOCK_INVOICES.map((invoice) => toInvoiceWithTotals(invoice)),
-  );
+  const [invoices, setInvoices] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [dateRange, setDateRange] = useState({ from: "", to: "" });
   const [paymentFilter, setPaymentFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+  const fetchInvoices = async () => {
+    try {
+      const res = await api.get("/admin/orders");
+      setInvoices(res.data.orders);
+      console.log("Hóa đơn đã tải:", res.data.orders);
+    } catch (error) {
+      console.error("Lỗi khi tải hóa đơn:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchInvoices();
+  }, []);
 
   const filteredInvoices = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();

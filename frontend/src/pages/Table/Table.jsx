@@ -27,125 +27,8 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import TableList from "@/components/layouts/table-list";
-
-const MOCK_TABLES = [
-  {
-    id: 1,
-    tableNumber: "B01",
-    area: "Tầng 1",
-    capacity: 2,
-    status: "available",
-  },
-  {
-    id: 2,
-    tableNumber: "B02",
-    area: "Tầng 1",
-    capacity: 4,
-    status: "occupied",
-  },
-  {
-    id: 3,
-    tableNumber: "B03",
-    area: "Tầng 1",
-    capacity: 6,
-    status: "reserved",
-  },
-  {
-    id: 4,
-    tableNumber: "B04",
-    area: "Tầng 1",
-    capacity: 4,
-    status: "available",
-  },
-  {
-    id: 5,
-    tableNumber: "B05",
-    area: "Tầng 2",
-    capacity: 2,
-    status: "cleaning",
-  },
-  {
-    id: 6,
-    tableNumber: "B06",
-    area: "Tầng 2",
-    capacity: 8,
-    status: "occupied",
-  },
-  {
-    id: 7,
-    tableNumber: "B07",
-    area: "Tầng 2",
-    capacity: 4,
-    status: "available",
-  },
-  {
-    id: 8,
-    tableNumber: "B08",
-    area: "Sân vườn",
-    capacity: 6,
-    status: "reserved",
-  },
-  {
-    id: 9,
-    tableNumber: "B09",
-    area: "Sân vườn",
-    capacity: 4,
-    status: "available",
-  },
-  { id: 10, tableNumber: "B10", area: "VIP", capacity: 10, status: "occupied" },
-  { id: 11, tableNumber: "B11", area: "VIP", capacity: 8, status: "available" },
-  {
-    id: 12,
-    tableNumber: "B12",
-    area: "Tầng 2",
-    capacity: 4,
-    status: "cleaning",
-  },
-  {
-    id: 13,
-    tableNumber: "B13",
-    area: "Sân vườn",
-    capacity: 2,
-    status: "available",
-  },
-  {
-    id: 14,
-    tableNumber: "B14",
-    area: "Tầng 1",
-    capacity: 6,
-    status: "occupied",
-  },
-  { id: 15, tableNumber: "B15", area: "VIP", capacity: 12, status: "reserved" },
-  {
-    id: 16,
-    tableNumber: "B16",
-    area: "Tầng 2",
-    capacity: 4,
-    status: "available",
-  },
-  {
-    id: 17,
-    tableNumber: "B17",
-    area: "Sân vườn",
-    capacity: 6,
-    status: "occupied",
-  },
-  {
-    id: 18,
-    tableNumber: "B18",
-    area: "Tầng 1",
-    capacity: 2,
-    status: "available",
-  },
-  { id: 19, tableNumber: "B19", area: "VIP", capacity: 8, status: "cleaning" },
-  {
-    id: 20,
-    tableNumber: "B20",
-    area: "Tầng 2",
-    capacity: 4,
-    status: "reserved",
-  },
-];
+import api from "@/lib/axios";
+import { toast } from "sonner";
 
 const STATUS_OPTIONS = [
   { value: "all", label: "Tất cả trạng thái" },
@@ -173,8 +56,13 @@ const DRAWER_MODE = {
   edit: "edit",
 };
 
+const normalizeTableRecord = (table) => ({
+  ...table,
+  id: table.id ?? table._id,
+});
+
 const Table = () => {
-  const [tables, setTables] = useState(MOCK_TABLES);
+  const [tables, setTables] = useState([]);
   const [tableNumberQuery, setTableNumberQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -184,6 +72,22 @@ const Table = () => {
   const [activeTableId, setActiveTableId] = useState(null);
   const [tableForm, setTableForm] = useState(EMPTY_FORM);
   const [formError, setFormError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const fetchTables = async () => {
+    try {
+      const res = await api.get("/admin/tables");
+      setTables(
+        Array.isArray(res.data) ? res.data.map(normalizeTableRecord) : [],
+      );
+    } catch (error) {
+      console.error("Lỗi xảy ra khi truy xuất tables: ", error);
+      toast.error("Lỗi xảy ra khi truy xuất tables");
+    }
+  };
+  useEffect(() => {
+    fetchTables();
+  }, []);
 
   const filteredTables = useMemo(() => {
     const normalizedQuery = tableNumberQuery.trim().toLowerCase();
@@ -310,7 +214,7 @@ const Table = () => {
     };
   };
 
-  const handleSubmitTableForm = (event) => {
+  const handleSubmitTableForm = async (event) => {
     event.preventDefault();
 
     const result = validateTableForm(
@@ -323,14 +227,29 @@ const Table = () => {
     }
 
     if (drawerMode === DRAWER_MODE.add) {
-      setTables((previousTables) => [
-        {
-          id: Date.now(),
-          ...result.payload,
-        },
-        ...previousTables,
-      ]);
-      setCurrentPage(1);
+      try {
+        setIsSubmitting(true);
+
+        // Gọi API thêm bàn mới, backend nhận: tableNumber, area, capacity, status.
+        const response = await api.post("/admin/tables", result.payload);
+        const createdTable = normalizeTableRecord(response.data);
+
+        setTables((previousTables) => [createdTable, ...previousTables]);
+        setCurrentPage(1);
+        setIsFormDrawerOpen(false);
+        resetFormState();
+        toast.success("Thêm bàn mới thành công");
+      } catch (error) {
+        console.error("Lỗi khi thêm bàn: ", error);
+        const apiMessage =
+          error?.response?.data?.message ||
+          "Không thể thêm bàn. Vui lòng thử lại.";
+        setFormError(apiMessage);
+        toast.error(apiMessage);
+      } finally {
+        setIsSubmitting(false);
+      }
+      return;
     }
 
     if (drawerMode === DRAWER_MODE.edit && activeTableId !== null) {
@@ -617,9 +536,11 @@ const Table = () => {
             ) : null}
 
             <DrawerFooter className="px-0 pt-0">
-              <Button type="submit">
+              <Button type="submit" disabled={isSubmitting}>
                 {drawerMode === DRAWER_MODE.add
-                  ? "Lưu bàn mới"
+                  ? isSubmitting
+                    ? "Đang lưu..."
+                    : "Lưu bàn mới"
                   : "Lưu thay đổi"}
               </Button>
               <DrawerClose asChild>

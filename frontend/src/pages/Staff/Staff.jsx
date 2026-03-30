@@ -55,6 +55,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import api from "@/lib/axios";
 
 const ROLES = {
   admin: "Admin",
@@ -63,81 +64,6 @@ const ROLES = {
 };
 
 const PAGE_SIZE = 5;
-
-const MOCK_STAFFS = [
-  {
-    id: 1,
-    fullName: "Nguyen Minh Duc",
-    email: "duc.nguyen@restaurant.vn",
-    phone: "0901234567",
-    role: "admin",
-    startDate: "2023-01-05",
-    active: true,
-  },
-  {
-    id: 2,
-    fullName: "Tran Thi Lan",
-    email: "lan.tran@restaurant.vn",
-    phone: "0912456789",
-    role: "waiter",
-    startDate: "2023-03-14",
-    active: true,
-  },
-  {
-    id: 3,
-    fullName: "Le Quoc Bao",
-    email: "bao.le@restaurant.vn",
-    phone: "0938112233",
-    role: "kitchen",
-    startDate: "2022-11-09",
-    active: true,
-  },
-  {
-    id: 4,
-    fullName: "Pham Thu Ha",
-    email: "ha.pham@restaurant.vn",
-    phone: "0987554433",
-    role: "waiter",
-    startDate: "2024-02-20",
-    active: false,
-  },
-  {
-    id: 5,
-    fullName: "Vo Thanh Nam",
-    email: "nam.vo@restaurant.vn",
-    phone: "0977665544",
-    role: "kitchen",
-    startDate: "2023-07-18",
-    active: true,
-  },
-  {
-    id: 6,
-    fullName: "Hoang Gia Huy",
-    email: "huy.hoang@restaurant.vn",
-    phone: "0966332211",
-    role: "waiter",
-    startDate: "2022-09-01",
-    active: false,
-  },
-  {
-    id: 7,
-    fullName: "Bui Thanh Nhan",
-    email: "nhan.bui@restaurant.vn",
-    phone: "0907888999",
-    role: "kitchen",
-    startDate: "2024-01-11",
-    active: true,
-  },
-  {
-    id: 8,
-    fullName: "Dang Khai An",
-    email: "an.dang@restaurant.vn",
-    phone: "0944556677",
-    role: "admin",
-    startDate: "2021-12-25",
-    active: true,
-  },
-];
 
 const staffSchema = z.object({
   fullName: z.string().trim().min(1, "Họ tên là bắt buộc"),
@@ -186,11 +112,25 @@ const getInitials = (fullName) => {
 };
 
 const Staff = () => {
-  const [staffs, setStaffs] = useState(MOCK_STAFFS);
+  const [staffs, setStaffs] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingStaffId, setEditingStaffId] = useState(null);
+
+  const fetchStaffs = async () => {
+    try {
+      const res = await api.get("/admin/staffs");
+      setStaffs(res.data.staffs);
+      console.log(staffs); // Debug log
+    } catch (error) {
+      console.error("Lỗi xảy ra khi truy xuất staffs: ", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchStaffs();
+  }, []);
 
   const form = useForm({
     resolver: zodResolver(staffSchema),

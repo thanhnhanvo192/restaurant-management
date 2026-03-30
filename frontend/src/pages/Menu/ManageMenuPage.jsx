@@ -59,6 +59,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import api from "@/lib/axios";
 
 const PAGE_SIZE = 6;
 
@@ -67,97 +68,6 @@ const DEFAULT_CATEGORIES = [
   { id: "cat-main", name: "Món chính" },
   { id: "cat-drink", name: "Đồ uống" },
   { id: "cat-dessert", name: "Tráng miệng" },
-];
-
-const DEFAULT_MENU_ITEMS = [
-  {
-    id: "m1",
-    name: "Salad cá ngừ",
-    price: 95000,
-    categoryId: "cat-appetizer",
-    available: true,
-    soldCount: 143,
-    imageUrl:
-      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&auto=format&fit=crop",
-    description: "Salad rau tươi ăn kèm cá ngừ áp chảo.",
-  },
-  {
-    id: "m2",
-    name: "Bò lúc lắc khoai tây",
-    price: 185000,
-    categoryId: "cat-main",
-    available: true,
-    soldCount: 298,
-    imageUrl:
-      "https://images.unsplash.com/photo-1544025162-d76694265947?w=200&auto=format&fit=crop",
-    description: "Thịt bò mềm, rau củ và sốt tiêu đen.",
-  },
-  {
-    id: "m3",
-    name: "Mì Ý sốt bò bằm",
-    price: 135000,
-    categoryId: "cat-main",
-    available: false,
-    soldCount: 221,
-    imageUrl:
-      "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=200&auto=format&fit=crop",
-    description: "Sốt cà chua bò bằm nấu chậm.",
-  },
-  {
-    id: "m4",
-    name: "Trà đào cam sả",
-    price: 55000,
-    categoryId: "cat-drink",
-    available: true,
-    soldCount: 412,
-    imageUrl:
-      "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=200&auto=format&fit=crop",
-    description: "Trà thơm nhẹ, đào ngâm và cam tươi.",
-  },
-  {
-    id: "m5",
-    name: "Cheesecake việt quất",
-    price: 79000,
-    categoryId: "cat-dessert",
-    available: true,
-    soldCount: 167,
-    imageUrl:
-      "https://images.unsplash.com/photo-1524351199678-941a58a3df50?w=200&auto=format&fit=crop",
-    description: "Bánh kem phô mai mịn, phủ sốt việt quất.",
-  },
-  {
-    id: "m6",
-    name: "Súp bí đỏ kem tươi",
-    price: 69000,
-    categoryId: "cat-appetizer",
-    available: false,
-    soldCount: 98,
-    imageUrl:
-      "https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?w=200&auto=format&fit=crop",
-    description: "Súp bí đỏ nấu cùng kem tươi và hạt điều.",
-  },
-  {
-    id: "m7",
-    name: "Cá hồi sốt bơ chanh",
-    price: 245000,
-    categoryId: "cat-main",
-    available: true,
-    soldCount: 184,
-    imageUrl:
-      "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=200&auto=format&fit=crop",
-    description: "Cá hồi áp chảo dùng với sốt bơ chanh.",
-  },
-  {
-    id: "m8",
-    name: "Soda chanh bạc hà",
-    price: 49000,
-    categoryId: "cat-drink",
-    available: true,
-    soldCount: 130,
-    imageUrl:
-      "https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=200&auto=format&fit=crop",
-    description: "Nước soda mát lạnh với chanh và bạc hà.",
-  },
 ];
 
 const itemSchema = z.object({
@@ -197,7 +107,7 @@ const buildCategoryMap = (categories) => {
 };
 
 const ManageMenuPage = () => {
-  const [menuItems, setMenuItems] = useState(DEFAULT_MENU_ITEMS);
+  const [menuItems, setMenuItems] = useState([]);
   const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -215,6 +125,20 @@ const ManageMenuPage = () => {
   const [editingCategoryId, setEditingCategoryId] = useState(null);
 
   const categoryMap = useMemo(() => buildCategoryMap(categories), [categories]);
+
+  const fetchMenus = async () => {
+    try {
+      const res = await api.get("/admin/menus");
+      setMenuItems(res.data.menus);
+      console.log("Menus: ", res.data.menus);
+    } catch (error) {
+      toast.error("Không thể tải dữ liệu thực đơn");
+    }
+  };
+
+  useEffect(() => {
+    fetchMenus();
+  }, []);
 
   const itemForm = useForm({
     resolver: zodResolver(itemSchema),
