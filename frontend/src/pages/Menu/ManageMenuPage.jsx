@@ -90,14 +90,6 @@ const currencyFormatter = new Intl.NumberFormat("vi-VN", {
   maximumFractionDigits: 0,
 });
 
-const toDataUri = (file) =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(new Error("Không thể đọc file ảnh"));
-    reader.readAsDataURL(file);
-  });
-
 const buildCategoryMap = (categories) => {
   const map = {};
   categories.forEach((category) => {
@@ -105,6 +97,31 @@ const buildCategoryMap = (categories) => {
   });
   return map;
 };
+
+const toAbsoluteImageUrl = (imagePath) => {
+  if (!imagePath) {
+    return "";
+  }
+
+  if (/^https?:\/\//i.test(imagePath) || imagePath.startsWith("blob:")) {
+    return imagePath;
+  }
+
+  const normalizedPath = imagePath.startsWith("/")
+    ? imagePath
+    : `/${imagePath}`;
+
+  return `${api.defaults.baseURL}${normalizedPath}`;
+};
+
+const normalizeMenuRecord = (menu) => ({
+  ...menu,
+  id: menu.id ?? menu._id,
+  categoryId: menu.categoryId ?? menu.category ?? "",
+  imageUrl: toAbsoluteImageUrl(menu.imageUrl ?? menu.image ?? ""),
+  soldCount: menu.soldCount ?? 0,
+  available: menu.available ?? true,
+});
 
 const ManageMenuPage = () => {
   const [menuItems, setMenuItems] = useState([]);
@@ -120,6 +137,8 @@ const ManageMenuPage = () => {
   const [isItemDialogOpen, setIsItemDialogOpen] = useState(false);
   const [editingItemId, setEditingItemId] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
+  const [selectedImageFile, setSelectedImageFile] = useState(null);
+  const [isSavingItem, setIsSavingItem] = useState(false);
 
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
   const [editingCategoryId, setEditingCategoryId] = useState(null);
@@ -129,8 +148,10 @@ const ManageMenuPage = () => {
   const fetchMenus = async () => {
     try {
       const res = await api.get("/admin/menus");
-      setMenuItems(res.data.menus);
-      console.log("Menus: ", res.data.menus);
+      const normalizedMenus = Array.isArray(res.data?.menus)
+        ? res.data.menus.map(normalizeMenuRecord)
+        : [];
+      setMenuItems(normalizedMenus);
     } catch (error) {
       toast.error("Không thể tải dữ liệu thực đơn");
     }
@@ -215,6 +236,7 @@ const ManageMenuPage = () => {
   const openCreateItemDialog = () => {
     setEditingItemId(null);
     setImagePreview("");
+    setSelectedImageFile(null);
     itemForm.reset({
       name: "",
       price: "",
@@ -227,6 +249,7 @@ const ManageMenuPage = () => {
   const openEditItemDialog = (item) => {
     setEditingItemId(item.id);
     setImagePreview(item.imageUrl || "");
+    setSelectedImageFile(null);
     itemForm.reset({
       name: item.name,
       price: item.price,
@@ -236,7 +259,7 @@ const ManageMenuPage = () => {
     setIsItemDialogOpen(true);
   };
 
-  const handleUploadImage = async (event) => {
+  const handleUploadImage = (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -245,19 +268,21 @@ const ManageMenuPage = () => {
       return;
     }
 
-    const dataUri = await toDataUri(file);
-    setImagePreview(dataUri);
+    if (imagePreview.startsWith("blob:")) {
+      URL.revokeObjectURL(imagePreview);
+    }
+
+    setSelectedImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
   };
 
-  const handleSaveItem = itemForm.handleSubmit((values) => {
+  const handleSaveItem = itemForm.handleSubmit(async (values) => {
     const payload = {
       name: values.name.trim(),
       price: Number(values.price),
       categoryId: values.categoryId,
       description: values.description?.trim() || "",
-      imageUrl:
-        imagePreview ||
-        "https://images.unsplash.com/photo-1498654896293-37aacf113fd9?w=200&auto=format&fit=crop",
+      imageUrl: imagePreview,
     };
 
     if (editingItemId) {
@@ -269,18 +294,47 @@ const ManageMenuPage = () => {
       );
       toast.success("Đã cập nhật món ăn");
     } else {
-      const newItem = {
-        id: crypto.randomUUID(),
-        soldCount: 0,
-        available: true,
-        ...payload,
-      };
-      setMenuItems((prev) => [newItem, ...prev]);
-      setCurrentPage(1);
-      toast.success("Đã thêm món mới");
+      try {
+        setIsSavingItem(true);
+
+        const formData = new FormData();
+        formData.append("name", payload.name);
+        formData.append("description", payload.description);
+        formData.append("price", String(payload.price));
+        formData.append("categoryId", payload.categoryId);
+
+        if (selectedImageFile) {
+          formData.append("image", selectedImageFile);
+        }
+
+        const response = await api.post("/admin/menus", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        const createdMenuRaw = response.data?.menu ?? response.data;
+        const createdMenu = normalizeMenuRecord({
+          ...payload,
+          ...createdMenuRaw,
+        });
+
+        setMenuItems((prev) => [createdMenu, ...prev]);
+        setCurrentPage(1);
+        toast.success("Đã thêm món mới");
+      } catch (error) {
+        console.error("Lỗi khi thêm món mới: ", error);
+        const apiMessage =
+          error?.response?.data?.message ||
+          "Không thể thêm món mới. Vui lòng thử lại.";
+        toast.error(apiMessage);
+        return;
+      } finally {
+        setIsSavingItem(false);
+      }
     }
 
     setIsItemDialogOpen(false);
+    setSelectedImageFile(null);
   });
 
   const handleToggleAvailability = (itemId, checked) => {
@@ -862,7 +916,9 @@ const ManageMenuPage = () => {
                   Hủy
                 </Button>
               </DialogClose>
-              <Button type="submit">Lưu món</Button>
+              <Button type="submit" disabled={isSavingItem}>
+                {isSavingItem ? "Đang lưu..." : "Lưu món"}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
