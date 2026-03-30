@@ -88,7 +88,7 @@ const Table = () => {
   };
   useEffect(() => {
     fetchTables();
-  }, []);
+  }, [tables]);
 
   const filteredTables = useMemo(() => {
     const normalizedQuery = tableNumberQuery.trim().toLowerCase();
@@ -423,9 +423,6 @@ const Table = () => {
   const isAllCurrentPageSelected =
     paginatedTableIds.length > 0 &&
     selectedInCurrentPageCount === paginatedTableIds.length;
-  const isSomeCurrentPageSelected =
-    selectedInCurrentPageCount > 0 &&
-    selectedInCurrentPageCount < paginatedTableIds.length;
 
   const toggleSelectAllInCurrentPage = useCallback(
     (checked) => {
@@ -520,7 +517,6 @@ const Table = () => {
             selectedCount={selectedTableIds.length}
             isDeleting={isDeleting}
             isAllCurrentPageSelected={isAllCurrentPageSelected}
-            isSomeCurrentPageSelected={isSomeCurrentPageSelected}
             rowStatusOptions={ROW_STATUS_OPTIONS}
             onToggleSelectAllInCurrentPage={toggleSelectAllInCurrentPage}
             onToggleSelectTable={toggleSelectTable}

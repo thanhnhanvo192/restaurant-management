@@ -24,7 +24,6 @@ const TableList = ({
   selectedCount,
   isDeleting,
   isAllCurrentPageSelected,
-  isSomeCurrentPageSelected,
   rowStatusOptions,
   onToggleSelectAllInCurrentPage,
   onToggleSelectTable,
@@ -54,13 +53,7 @@ const TableList = ({
             <TableRow>
               <TableHead className="w-10">
                 <Checkbox
-                  checked={
-                    isAllCurrentPageSelected
-                      ? true
-                      : isSomeCurrentPageSelected
-                        ? "indeterminate"
-                        : false
-                  }
+                  checked={isAllCurrentPageSelected}
                   onCheckedChange={(checked) =>
                     onToggleSelectAllInCurrentPage(checked === true)
                   }
