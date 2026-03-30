@@ -22,6 +22,7 @@ const TableList = ({
   paginatedTables,
   selectedTableIds,
   selectedCount,
+  isDeleting,
   isAllCurrentPageSelected,
   isSomeCurrentPageSelected,
   rowStatusOptions,
@@ -41,9 +42,9 @@ const TableList = ({
         <Button
           variant="destructive"
           onClick={onBulkDelete}
-          disabled={selectedCount === 0}
+          disabled={selectedCount === 0 || isDeleting}
         >
-          Xoá nhiều bàn
+          {isDeleting ? "Đang xoá..." : "Xoá nhiều bàn"}
         </Button>
       </div>
 
@@ -124,6 +125,7 @@ const TableList = ({
                       <Button
                         size="sm"
                         variant="destructive"
+                        disabled={isDeleting}
                         onClick={() => onDelete(table.id)}
                       >
                         Xoá

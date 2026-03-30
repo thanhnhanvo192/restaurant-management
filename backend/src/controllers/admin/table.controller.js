@@ -22,6 +22,7 @@ export const createTable = async (req, res) => {
     res.status(201).json(savedTable);
   } catch (error) {
     console.error("Lỗi khi tạo bàn: ", error);
+    res.status(500).json({ message: "Lỗi máy chủ" });
   }
 };
 
@@ -42,6 +43,22 @@ export const updateTable = async (req, res) => {
     res.status(200).json(updatedTable);
   } catch (error) {
     console.error("Lỗi khi cập nhật bàn: ", error);
+    res.status(500).json({ message: "Lỗi máy chủ" });
+  }
+};
+
+// [DELETE] /admin/tables/:id
+export const deleteTable = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedTable = await Table.findByIdAndDelete(id);
+    if (!deletedTable) {
+      return res.status(404).json({ message: "Không tìm thấy bàn" });
+    }
+    res.status(200).json({ message: "Bàn đã được xoá thành công" });
+  } catch (error) {
+    console.error("Lỗi khi xoá bàn: ", error);
     res.status(500).json({ message: "Lỗi máy chủ" });
   }
 };

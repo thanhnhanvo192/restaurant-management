@@ -73,6 +73,7 @@ const Table = () => {
   const [tableForm, setTableForm] = useState(EMPTY_FORM);
   const [formError, setFormError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchTables = async () => {
     try {
@@ -253,18 +254,48 @@ const Table = () => {
     }
 
     if (drawerMode === DRAWER_MODE.edit && activeTableId !== null) {
-      setTables((previousTables) =>
-        previousTables.map((table) => {
-          if (table.id !== activeTableId) {
-            return table;
-          }
+      try {
+        setIsSubmitting(true);
 
-          return {
-            ...table,
-            ...result.payload,
-          };
-        }),
-      );
+        // Gọi API cập nhật bàn theo id.
+        const response = await api.put(
+          `/admin/tables/${activeTableId}`,
+          result.payload,
+        );
+
+        const updatedFromApi = response?.data
+          ? normalizeTableRecord(response.data)
+          : null;
+
+        setTables((previousTables) =>
+          previousTables.map((table) => {
+            if (table.id !== activeTableId) {
+              return table;
+            }
+
+            return updatedFromApi
+              ? updatedFromApi
+              : {
+                  ...table,
+                  ...result.payload,
+                };
+          }),
+        );
+
+        setIsFormDrawerOpen(false);
+        resetFormState();
+        toast.success("Cập nhật bàn thành công");
+      } catch (error) {
+        console.error("Lỗi khi cập nhật bàn: ", error);
+        const apiMessage =
+          error?.response?.data?.message ||
+          "Không thể cập nhật bàn. Vui lòng thử lại.";
+        setFormError(apiMessage);
+        toast.error(apiMessage);
+      } finally {
+        setIsSubmitting(false);
+      }
+      return;
     }
 
     setIsFormDrawerOpen(false);
@@ -272,32 +303,103 @@ const Table = () => {
   };
 
   const handleDeleteTable = useCallback(
-    (tableId) => {
-      setTables((previousTables) =>
-        previousTables.filter((table) => table.id !== tableId),
-      );
-      setSelectedTableIds((previousSelectedIds) =>
-        previousSelectedIds.filter((id) => id !== tableId),
-      );
+    async (tableId) => {
+      if (!tableId) {
+        return;
+      }
 
-      if (activeTableId === tableId) {
-        closeFormDrawer();
-        resetFormState();
+      try {
+        setIsDeleting(true);
+        await api.delete(`/admin/tables/${tableId}`);
+
+        setTables((previousTables) =>
+          previousTables.filter((table) => table.id !== tableId),
+        );
+        setSelectedTableIds((previousSelectedIds) =>
+          previousSelectedIds.filter((id) => id !== tableId),
+        );
+
+        if (activeTableId === tableId) {
+          closeFormDrawer();
+          resetFormState();
+        }
+
+        toast.success("Xoá bàn thành công");
+      } catch (error) {
+        console.error("Lỗi khi xoá bàn: ", error);
+        const apiMessage =
+          error?.response?.data?.message ||
+          "Không thể xoá bàn. Vui lòng thử lại.";
+        toast.error(apiMessage);
+      } finally {
+        setIsDeleting(false);
       }
     },
     [activeTableId, closeFormDrawer, resetFormState],
   );
 
-  const handleBulkDelete = useCallback(() => {
-    if (selectedTableIds.length === 0) {
+  const handleBulkDelete = useCallback(async () => {
+    if (selectedTableIds.length === 0 || isDeleting) {
       return;
     }
 
-    setTables((previousTables) =>
-      previousTables.filter((table) => !selectedTableIds.includes(table.id)),
+    const shouldDelete = window.confirm(
+      `Bạn có chắc chắn muốn xoá ${selectedTableIds.length} bàn đã chọn?`,
     );
-    setSelectedTableIds([]);
-  }, [selectedTableIds]);
+
+    if (!shouldDelete) {
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+
+      const deleteResults = await Promise.allSettled(
+        selectedTableIds.map((tableId) =>
+          api.delete(`/admin/tables/${tableId}`),
+        ),
+      );
+
+      const successIds = selectedTableIds.filter(
+        (_, index) => deleteResults[index].status === "fulfilled",
+      );
+
+      const failedCount = selectedTableIds.length - successIds.length;
+
+      if (successIds.length > 0) {
+        setTables((previousTables) =>
+          previousTables.filter((table) => !successIds.includes(table.id)),
+        );
+        setSelectedTableIds((previousSelectedIds) =>
+          previousSelectedIds.filter((id) => !successIds.includes(id)),
+        );
+
+        if (activeTableId !== null && successIds.includes(activeTableId)) {
+          closeFormDrawer();
+          resetFormState();
+        }
+      }
+
+      if (failedCount === 0) {
+        toast.success("Xoá các bàn đã chọn thành công");
+      } else {
+        toast.error(
+          `Đã xoá ${successIds.length} bàn, thất bại ${failedCount} bàn.`,
+        );
+      }
+    } catch (error) {
+      console.error("Lỗi khi xoá nhiều bàn: ", error);
+      toast.error("Không thể xoá các bàn đã chọn. Vui lòng thử lại.");
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [
+    activeTableId,
+    closeFormDrawer,
+    isDeleting,
+    resetFormState,
+    selectedTableIds,
+  ]);
 
   const toggleSelectTable = useCallback((tableId, checked) => {
     setSelectedTableIds((previousSelectedIds) => {
@@ -406,7 +508,9 @@ const Table = () => {
                 </Select>
               </div>
 
-              <Button onClick={openAddDrawer}>Thêm bàn</Button>
+              <Button onClick={openAddDrawer} disabled={isDeleting}>
+                Thêm bàn
+              </Button>
             </div>
           </div>
 
@@ -414,6 +518,7 @@ const Table = () => {
             paginatedTables={paginatedTables}
             selectedTableIds={selectedTableIds}
             selectedCount={selectedTableIds.length}
+            isDeleting={isDeleting}
             isAllCurrentPageSelected={isAllCurrentPageSelected}
             isSomeCurrentPageSelected={isSomeCurrentPageSelected}
             rowStatusOptions={ROW_STATUS_OPTIONS}
