@@ -11,6 +11,13 @@ import Staff from "./pages/Staff/Staff";
 import ManageCustomersPage from "./pages/Customer/ManageCustomersPage";
 import ManageInvoicesPage from "./pages/Invoice/ManageInvoicesPage";
 import AnalyticsDashboardPage from "./pages/Analytics/AnalyticsDashboardPage";
+import CustomerLayout from "./layouts/CustomerLayout";
+import CustomerHome from "./pages/Customer/CustomerHome";
+import CustomerDashboardPage from "./pages/Customer/CustomerDashboardPage";
+import BookTablePage from "./pages/Customer/BookTablePage";
+import MenuPage from "./pages/Customer/MenuPage";
+import OrderHistoryPage from "./pages/Customer/OrderHistoryPage";
+import ProfilePage from "./pages/Customer/ProfilePage";
 
 function App() {
   return (
@@ -26,6 +33,15 @@ function App() {
             <Route path="customers" element={<ManageCustomersPage />} />
             <Route path="orders" element={<ManageInvoicesPage />} />
             <Route path="reports" element={<AnalyticsDashboardPage />} />
+          </Route>
+          {/* Các route dành cho khách hàng */}
+          <Route path="/customer" element={<CustomerLayout />}>
+            <Route index element={<CustomerHome />} />
+            <Route path="dashboard" element={<CustomerDashboardPage />} />
+            <Route path="book-table" element={<BookTablePage />} />
+            <Route path="menu" element={<MenuPage />} />
+            <Route path="orders" element={<OrderHistoryPage />} />
+            <Route path="profile" element={<ProfilePage />} />
           </Route>
 
           <Route path="/" element={<HomePage />} />

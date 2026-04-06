@@ -1,0 +1,243 @@
+/**
+ * ════════════════════════════════════════════════════════════════════════════════
+ * 📌 CÁCH TÍCH HỢp CustomerLayout VÀO App.jsx
+ * ════════════════════════════════════════════════════════════════════════════════
+ * 
+ * Đây là ví dụ code cần thêm vào src/App.jsx
+ * 
+ */
+
+// ──────────────────────────────────────────────────────────────────────────────
+// 1️⃣  IMPORTS
+// ──────────────────────────────────────────────────────────────────────────────
+
+import { Toaster } from "sonner";
+import { BrowserRouter, Routes, Route } from "react-router";
+import { TooltipProvider } from "@/components/ui/tooltip";
+
+// 📌 Admin
+import HomePage from "./pages/HomePage";
+import NotFound from "./pages/NotFound";
+import AdminLayout from "./layouts/AdminLayout";
+import Dashboard from "./pages/Dashborad";
+import Table from "./pages/Table/Table";
+import Menu from "./pages/Menu/Menu";
+import Staff from "./pages/Staff/Staff";
+import ManageCustomersPage from "./pages/Customer/ManageCustomersPage";
+import ManageInvoicesPage from "./pages/Invoice/ManageInvoicesPage";
+import AnalyticsDashboardPage from "./pages/Analytics/AnalyticsDashboardPage";
+
+// 🟢 CUSTOMER LAYOUT & PAGES (NEW)
+import CustomerLayout from "./layouts/CustomerLayout";
+import BookTablePage from "./pages/Customer/BookTablePage";
+// import CustomerDashboardPage from "./pages/Customer/CustomerDashboardPage";
+// import MenuPage from "./pages/Customer/MenuPage";
+// import OrdersPage from "./pages/Customer/OrdersPage";
+// import ProfilePage from "./pages/Customer/ProfilePage";
+
+
+// ──────────────────────────────────────────────────────────────────────────────
+// 2️⃣  APP COMPONENT
+// ──────────────────────────────────────────────────────────────────────────────
+
+function App() {
+  return (
+    <TooltipProvider>
+      <BrowserRouter>
+        <Toaster richColors position="top-right" />
+        <Routes>
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {/* 📌 ADMIN ROUTES */}
+          {/* ════════════════════════════════════════════════════════════════ */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="tables" element={<Table />} />
+            <Route path="menu" element={<Menu />} />
+            <Route path="staff" element={<Staff />} />
+            <Route path="customers" element={<ManageCustomersPage />} />
+            <Route path="orders" element={<ManageInvoicesPage />} />
+            <Route path="reports" element={<AnalyticsDashboardPage />} />
+          </Route>
+
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {/* 🟢 CUSTOMER ROUTES (NO SIDEBAR) */}
+          {/* ════════════════════════════════════════════════════════════════ */}
+          <Route path="/customer" element={<CustomerLayout />}>
+            {/* Đặt bàn */}
+            <Route path="book-table" element={<BookTablePage />} />
+
+            {/* Các page khác (TODO: Create these pages) */}
+            {/* <Route path="dashboard" element={<CustomerDashboardPage />} /> */}
+            {/* <Route path="menu" element={<MenuPage />} /> */}
+            {/* <Route path="orders" element={<OrdersPage />} /> */}
+            {/* <Route path="profile" element={<ProfilePage />} /> */}
+          </Route>
+
+          {/* ════════════════════════════════════════════════════════════════ */}
+          {/* 📌 PUBLIC ROUTES */}
+          {/* ════════════════════════════════════════════════════════════════ */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
+  );
+}
+
+export default App;
+
+
+// ──────────────────────────────────────────────────────────────────────────────
+// 3️⃣  URL MAPPING
+// ──────────────────────────────────────────────────────────────────────────────
+
+/**
+ * 
+ * URL                              Component                  Layout
+ * ─────────────────────────────────────────────────────────────────────────────
+ * /                                HomePage                  (plain)
+ * /customer/book-table             BookTablePage            CustomerLayout (no sidebar)
+ * /customer/dashboard              CustomerDashboardPage    CustomerLayout (no sidebar)
+ * /customer/menu                   MenuPage                 CustomerLayout (no sidebar)
+ * /customer/orders                 OrdersPage               CustomerLayout (no sidebar)
+ * /customer/profile                ProfilePage              CustomerLayout (no sidebar)
+ * /admin/dashboard                 Dashboard                AdminLayout (with sidebar)
+ * /admin/tables                    Table                    AdminLayout (with sidebar)
+ * /admin/menu                      Menu                     AdminLayout (with sidebar)
+ * ...
+ * 
+ * 
+ * CURRENT AVAILABLE:
+ * ─────────────────────────────────────────────────────────────────────────────
+ * ✅ /customer/book-table
+ * ❌ /customer/dashboard (need to create BookingPage)
+ * ❌ /customer/menu (need to create MenuPage)
+ * ❌ /customer/orders (need to create OrdersPage)
+ * ❌ /customer/profile (need to create ProfilePage)
+ * 
+ * 
+ * TEST IT:
+ * ─────────────────────────────────────────────────────────────────────────────
+ * npm run dev
+ * http://localhost:5173/customer/book-table
+ * 
+ * Expected:
+ * - Header fixed at top with logo, user menu, notifications
+ * - Main content full width
+ * - BookTablePage form displayed
+ * - Responsive on mobile
+ * 
+ */
+
+
+// ──────────────────────────────────────────────────────────────────────────────
+// 4️⃣  NEXT STEPS: CREATE MORE PAGES
+// ──────────────────────────────────────────────────────────────────────────────
+
+/**
+ * 
+ * Template for creating new customer pages:
+ * 
+ * File: src/pages/Customer/CustomerDashboardPage.jsx
+ * ─────────────────────────────────────────────────────────────────────────────
+ * 
+ * import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+ * 
+ * export default function CustomerDashboardPage() {
+ *   return (
+ *     <div className="space-y-6">
+ *       <div>
+ *         <h1 className="text-3xl font-bold">Trang chủ</h1>
+ *         <p className="text-muted-foreground mt-2">Chào mừng quay lại!</p>
+ *       </div>
+ * 
+ *       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+ *         <Card>
+ *           <CardHeader>
+ *             <CardTitle>Card 1</CardTitle>
+ *           </CardHeader>
+ *           <CardContent>Content here</CardContent>
+ *         </Card>
+ *         {/* More cards */}
+ *       </div>
+ *     </div>
+ *   );
+ * }
+ * 
+ * 
+ * Then import and add route to App.jsx:
+ * 
+ *   import CustomerDashboardPage from "./pages/Customer/CustomerDashboardPage";
+ * 
+ *   <Route path="dashboard" element={<CustomerDashboardPage />} />
+ * 
+ */
+
+
+// ──────────────────────────────────────────────────────────────────────────────
+// 5️⃣  NOTES & TIPS
+// ──────────────────────────────────────────────────────────────────────────────
+
+/**
+ * 
+ * ✅ KEY DIFFERENCES:
+ * 
+ *   AdminLayout:
+ *   - Has SidebarProvider & Sidebar
+ *   - Has menu navigation (dashboard, tables, staff, etc.)
+ *   - Content inside SidebarInset
+ * 
+ *   CustomerLayout:
+ *   - NO Sidebar
+ *   - Just Header at top
+ *   - Content is full width (p-4 mobile, p-6 desktop)
+ * 
+ * 
+ * ✅ REUSABLE COMPONENTS:
+ * 
+ *   CustomerLayout can wrap any customer page:
+ *   - Header automatically appears
+ *   - No need to import header multiple times
+ *   - Use <Outlet /> to render page content
+ * 
+ * 
+ * ✅ RESPONSIVE DESIGN:
+ * 
+ *   Mobile behavior:
+ *   - Header: h-16 (slim)
+ *   - Content: p-4 (less padding)
+ *   - Logo text hidden (only icon)
+ *   - User email hidden
+ * 
+ *   Desktop behavior:
+ *   - Header: h-16 (same height)
+ *   - Content: p-6 (more padding)
+ *   - Logo text shown
+ *   - User email shown
+ * 
+ */
+
+
+// ──────────────────────────────────────────────────────────────────────────────
+// 🎯 SUMMARY
+// ──────────────────────────────────────────────────────────────────────────────
+
+/**
+ * 
+ * ✅ COMPLETED:
+ *   - CustomerLayout.jsx (no sidebar version)
+ *   - customer-header.jsx (with all features)
+ *   - BookTablePage.jsx (example page)
+ *   - CUSTOMER_LAYOUT_GUIDE.md (documentation)
+ * 
+ * 📝 TODO:
+ *   - Add routes to App.jsx (this file)
+ *   - Create 4 more customer pages
+ *   - Connect to API
+ *   - Add authentication protection
+ * 
+ * 🚀 TEST:
+ *   npm run dev
+ *   http://localhost:5173/customer/book-table
+ * 
+ */

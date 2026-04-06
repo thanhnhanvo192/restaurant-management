@@ -1,0 +1,209 @@
+/**
+ * ============================================
+ * HƯỚNG DẪN TÍCH HỢP CUSTOMER LAYOUT VÀO APP.JSX
+ * ============================================
+ * 
+ * FILE: src/App.jsx
+ * 
+ * Hãy thêm các import và routes sau vào App.jsx:
+ * 
+ */
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 1. IMPORT COMPONENTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+import { Toaster } from "sonner";
+import { BrowserRouter, Routes, Route } from "react-router";
+import HomePage from "./pages/HomePage";
+import NotFound from "./pages/NotFound";
+import Dashboard from "./pages/Dashborad";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import Table from "./pages/Table/Table";
+import Menu from "./pages/Menu/Menu";
+import AdminLayout from "./layouts/AdminLayout";
+import Staff from "./pages/Staff/Staff";
+import ManageCustomersPage from "./pages/Customer/ManageCustomersPage";
+import ManageInvoicesPage from "./pages/Invoice/ManageInvoicesPage";
+import AnalyticsDashboardPage from "./pages/Analytics/AnalyticsDashboardPage";
+
+// 🟢 Thêm các import này:
+import CustomerLayout from "./layouts/CustomerLayout";
+import CustomerDashboardPage from "./pages/Customer/CustomerDashboardPage";
+import BookingPage from "./pages/Customer/BookingPage";
+import OrderHistoryPage from "./pages/Customer/OrderHistoryPage";
+import ProfilePage from "./pages/Customer/ProfilePage";
+// import MenuPage from "./pages/Customer/MenuPage"; // TODO: Tạo page này
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 2. COMPONENT APP
+// ─────────────────────────────────────────────────────────────────────────────
+
+function App() {
+  return (
+    <TooltipProvider>
+      <BrowserRouter>
+        <Toaster richColors position="top-right" />
+        <Routes>
+          {/* ===== ADMIN ROUTES (hiện tại) ===== */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="tables" element={<Table />} />
+            <Route path="menu" element={<Menu />} />
+            <Route path="staff" element={<Staff />} />
+            <Route path="customers" element={<ManageCustomersPage />} />
+            <Route path="orders" element={<ManageInvoicesPage />} />
+            <Route path="reports" element={<AnalyticsDashboardPage />} />
+          </Route>
+
+          {/* 🟢 ===== CUSTOMER ROUTES (MỚI THÊM) ===== */}
+          <Route path="/customer" element={<CustomerLayout />}>
+            <Route path="dashboard" element={<CustomerDashboardPage />} />
+            <Route path="booking" element={<BookingPage />} />
+            <Route path="orders" element={<OrderHistoryPage />} />
+            <Route path="profile" element={<ProfilePage />} />
+            {/* <Route path="menu" element={<MenuPage />} /> */}
+          </Route>
+
+          {/* HOME & 404 */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
+  );
+}
+
+export default App;
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3. URL ROUTES TƯƠNG ỨNG
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Après thêm routes trên, các URL sau sẽ khả dụng:
+ * 
+ * /customer/dashboard        → CustomerDashboardPage (Trang chủ khách hàng)
+ * /customer/booking          → BookingPage (Đặt bàn)
+ * /customer/orders           → OrderHistoryPage (Lịch sử đơn hàng)
+ * /customer/profile          → ProfilePage (Thông tin cá nhân)
+ * /customer/menu             → MenuPage (Thực đơn) [TODO: Tạo page này]
+ * 
+ */
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 4. NAVIGATION LINKS TRONG SIDEBAR
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Sidebar tự động hiển thị menu items dựa trên data.menuItems 
+ * trong file: src/components/layouts/customer-sidebar.jsx
+ * 
+ * Menu items hiện tại:
+ * 
+ * ├─ Trang chủ        → /customer/dashboard
+ * ├─ Đặt bàn          → /customer/booking
+ * ├─ Thực đơn & Gọi món → /customer/menu
+ * ├─ Lịch sử đơn hàng → /customer/orders
+ * └─ Thông tin cá nhân → /customer/profile
+ * 
+ * Để thêm/sửa menu item, edit file: src/components/layouts/customer-sidebar.jsx
+ * 
+ */
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 5. PAGES CÓ SẴN
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * ✅ Đã tạo:
+ * 
+ * 1. CustomerLayout.jsx
+ *    → Wrapper layout cho tất cả trang khách hàng
+ *    → Bao gồm Sidebar + Header + Outlet
+ * 
+ * 2. customer-sidebar.jsx
+ *    → Sidebar trái với logo + menu navigation
+ * 
+ * 3. customer-site-header.jsx
+ *    → Header bên trên với nút thông báo + logout
+ * 
+ * 4. CustomerDashboardPage.jsx
+ *    → Dashboard chính cho khách hàng
+ *    → Hiển thị quick actions + đơn hàng gần đây
+ * 
+ * 5. BookingPage.jsx
+ *    → Trang đặt bàn
+ *    → Form chọn ngày, giờ, số khách
+ * 
+ * 6. OrderHistoryPage.jsx
+ *    → Xem lịch sử đơn hàng
+ *    → Tìm kiếm + lọc + xem chi tiết
+ * 
+ * 7. ProfilePage.jsx
+ *    → Quản lý thông tin cá nhân
+ *    → Tab: Hồ sơ, Địa chỉ, Bảo mật
+ * 
+ * 📝 TODO: Tạo MenuPage.jsx (Thực đơn & gọi món)
+ *
+ */
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 6. CUSTOM CONFIGURATION
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * 🔧 Để custom layout:
+ * 
+ * ✏️  Thay tên nhà hàng:
+ *     File: src/components/layouts/customer-sidebar.jsx
+ *     "Nhà hàng ABC" → tên thực
+ * 
+ * ✏️  Thay avatar khách hàng:
+ *     File: src/components/layouts/customer-sidebar.jsx
+ *     "/avatars/customer.jpg" → đường dẫn mới
+ * 
+ * ✏️  Thay icon nhà hàng:
+ *     File: src/components/layouts/customer-sidebar.jsx
+ *     import icon từ lucide-react
+ * 
+ * ✏️  Xử lý logout:
+ *     File: src/components/layouts/customer-site-header.jsx
+ *     const handleLogout = () => { ... }
+ * 
+ */
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 7. NEXT STEPS
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * 1. ✅ Copy các import và routes từ file này vào src/App.jsx thực tế
+ * 
+ * 2. 📝 Tạo MenuPage.jsx (Thực đơn & gọi món)
+ *    Có thể reuse components từ Admin MenuPage hoặc tạo mới
+ * 
+ * 3. 🔌 Kết nối API:
+ *    - Thay mock data bằng API calls
+ *    - BookingPage: POST /api/bookings
+ *    - OrderHistoryPage: GET /api/orders
+ *    - ProfilePage: GET/PUT /api/profile
+ *    - MenuPage: GET /api/menu-items
+ * 
+ * 4. 🔐 Thêm Authentication:
+ *    - Bảo vệ /customer routes
+ *    - Check user role trước khi render
+ *    - Redirect đến login nếu chưa auth
+ * 
+ * 5. 🎨 Custom styling nếu cần:
+ *    - Tailwind classes
+ *    - CSS modules (nếu có)
+ *    - Theme variables
+ * 
+ */

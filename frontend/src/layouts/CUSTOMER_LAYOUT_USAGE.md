@@ -1,0 +1,226 @@
+/\*\*
+
+- ============================================
+- HƯỚNG DẪN SỬ DỤNG CUSTOMER LAYOUT
+- ============================================
+-
+- CustomerLayout là layout chung cho tất cả các trang dành cho KHÁCH HÀNG.
+-
+- 📁 CẤU TRÚC FILE:
+- ***
+- src/layouts/
+- └─ CustomerLayout.jsx (Layout chính)
+-
+- src/components/layouts/
+- ├─ customer-sidebar.jsx (Sidebar trái)
+- ├─ customer-site-header.jsx (Header trên)
+- ├─ nav-documents.jsx (Menu navigation - reuse từ admin)
+- └─ nav-user.jsx (User dropdown - reuse từ admin)
+-
+- src/pages/Customer/
+- ├─ CustomerDashboardPage.jsx (Dashboard khách hàng)
+- ├─ BookingPage.jsx (Đặt bàn)
+- ├─ MenuPage.jsx (Thực đơn & gọi món)
+- ├─ OrderHistoryPage.jsx (Lịch sử đơn hàng)
+- └─ ProfilePage.jsx (Thông tin cá nhân)
+-
+-
+- 📝 CÁCH SỬ DỤNG TRONG APP.JSX:
+- ***
+-
+- 1.  Import CustomerLayout
+- 2.  Tạo route group với prefix "/customer"
+- 3.  Thêm các trang con vào routes
+-
+- VÍ DỤ CODE:
+-
+-     import CustomerLayout from "./layouts/CustomerLayout";
+-     import CustomerDashboardPage from "./pages/Customer/CustomerDashboardPage";
+-     import BookingPage from "./pages/Customer/BookingPage";
+-     import MenuPage from "./pages/Customer/MenuPage";
+-     import OrderHistoryPage from "./pages/Customer/OrderHistoryPage";
+-     import ProfilePage from "./pages/Customer/ProfilePage";
+-
+-     function App() {
+-       return (
+-         <BrowserRouter>
+-           <Toaster richColors position="top-right" />
+-           <Routes>
+-             {/* Admin routes */}
+-             <Route path="/admin" element={<AdminLayout />}>
+-               <Route path="dashboard" element={<Dashboard />} />
+-               ...
+-             </Route>
+-
+-             {/* Customer routes (mới thêm) */}
+-             <Route path="/customer" element={<CustomerLayout />}>
+-               <Route path="dashboard" element={<CustomerDashboardPage />} />
+-               <Route path="booking" element={<BookingPage />} />
+-               <Route path="menu" element={<MenuPage />} />
+-               <Route path="orders" element={<OrderHistoryPage />} />
+-               <Route path="profile" element={<ProfilePage />} />
+-             </Route>
+-
+-             {/* Home & 404 */}
+-             <Route path="/" element={<HomePage />} />
+-             <Route path="*" element={<NotFound />} />
+-           </Routes>
+-         </BrowserRouter>
+-       );
+-     }
+-
+-
+- 🎨 LAYOUT STRUCTURE:
+- ***
+-
+- ┌─────────────────────────────────────────┐
+- │ CustomerSiteHeader │
+- │ [Menu Icon | Title] [Notification|Logout]│
+- ├──────────────┬──────────────────────────┤
+- │ │ │
+- │ CustomerSide │ │
+- │ bar (Logo + │ Main Content Area │
+- │ Menu Nav) │ (children/Outlet) │
+- │ │ │
+- │ │ │
+- └──────────────┴──────────────────────────┘
+-
+-
+- 📋 MENU ITEMS TRONG SIDEBAR:
+- ***
+-
+- 1.  Trang chủ (Dashboard)
+- URL: /customer/dashboard
+- Icon: LayoutDashboard
+-
+- 2.  Đặt bàn (Booking)
+- URL: /customer/booking
+- Icon: UtensilsCrossed
+-
+- 3.  Thực đơn & Gọi món (Menu)
+- URL: /customer/menu
+- Icon: Menu
+-
+- 4.  Lịch sử đơn hàng (Orders)
+- URL: /customer/orders
+- Icon: ListOrdered
+-
+- 5.  Thông tin cá nhân (Profile)
+- URL: /customer/profile
+- Icon: UserCircle
+-
+-
+- 🔧 CUSTOMIZATION:
+- ***
+-
+- ✏️ Thay đổi tên nhà hàng:
+-     File: src/components/layouts/customer-sidebar.jsx
+-     Line: <span className="text-base font-semibold">Nhà hàng ABC</span>
+-     → Thay "Nhà hàng ABC" thành tên thực
+-
+- ✏️ Thay đổi avatar mặc định khách hàng:
+-     File: src/components/layouts/customer-sidebar.jsx
+-     Line: avatar: "/avatars/customer.jpg"
+-     → Thay đường dẫn ảnh
+-
+- ✏️ Thay đổi danh sách menu items:
+-     File: src/components/layouts/customer-sidebar.jsx
+-     Sửa mảng `menuItems` trong object `data`
+-
+- ✏️ Xử lý Logout:
+-     File: src/components/layouts/customer-site-header.jsx
+-     Line: const handleLogout = () => {
+-     → Thay đổi logic logout (gọi API, clear token, navigate, etc.)
+-
+- ✏️ Thay đổi Header Title:
+-     File: src/components/layouts/customer-site-header.jsx
+-     Line: <h1 className="text-base font-medium">Khách hàng</h1>
+-     → Có thể thay bằng breadcrumb hoặc tên trang động
+-
+- ✏️ Responsive Sidebar Width:
+-     File: src/layouts/CustomerLayout.jsx
+-     Line: "--sidebar-width": "calc(var(--spacing) * 72)"
+-     → Thay giá trị 72 để thay đổi chiều rộng sidebar (tính bằng đơn vị spacing)
+-
+-
+- 🎯 VÍ DỤ TẠO TRANG CON:
+- ***
+-
+- File: src/pages/Customer/BookingPage.jsx
+-
+-     import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+-
+-     export default function BookingPage() {
+-       return (
+-         <div className="space-y-6">
+-           <div>
+-             <h1 className="text-3xl font-bold">Đặt bàn</h1>
+-             <p className="text-muted-foreground">Chọn ngày, giờ và số lượng khách</p>
+-           </div>
+-
+-           <Card>
+-             <CardHeader>
+-               <CardTitle>Thông tin đặt bàn</CardTitle>
+-             </CardHeader>
+-             <CardContent>
+-               {/* Form đặt bàn ở đây */}
+-             </CardContent>
+-           </Card>
+-         </div>
+-       );
+-     }
+-
+-
+- 🌐 REUSE COMPONENTS:
+- ***
+-
+- CustomerLayout sử dụng lại các component từ Admin:
+- - NavDocuments: Hiển thị menu items (từ data array)
+- - NavUser: Hiển thị user dropdown với logout
+- - SidebarProvider, SidebarInset: Quản lý layout sidebar
+-
+- Điều này giúp:
+- ✅ Giảm code duplicate
+- ✅ Dễ bảo trì và cập nhật
+- ✅ Đồng nhất styling trên toàn app
+-
+-
+- 🔒 AUTHENTICATION:
+- ***
+-
+- - Hiện tại, Layout không có xác thực built-in
+- - Để bảo vệ routes, sử dụng Protected Route wrapper:
+-
+-     import ProtectedRoute from "@/components/ProtectedRoute";
+-
+-     <Route path="/customer" element={
+-       <ProtectedRoute requiredRole="customer">
+-         <CustomerLayout />
+-       </ProtectedRoute>
+-     }>
+-       ...
+-     </Route>
+-
+-
+- 📱 RESPONSIVE DESIGN:
+- ***
+-
+- - Layout tự động responsive qua Sidebar's collapsible="offcanvas"
+- - Trên mobile: Sidebar ẩn đi, dùng hamburger menu (SidebarTrigger)
+- - Trên desktop: Sidebar luôn hiện
+- - Tailwind breakpoints: sm, md, lg, xl được sử dụng
+-
+-
+- 🚀 NEXT STEPS:
+- ***
+-
+- 1.  ✅ Tạo CustomerLayout.jsx (DONE)
+- 2.  ✅ Tạo CustomerSidebar & CustomerSiteHeader (DONE)
+- 3.  ✅ Tạo ví dụ CustomerDashboardPage (DONE)
+- 4.  📝 TODO: Tạo các trang con (BookingPage, MenuPage, OrderHistoryPage, ProfilePage)
+- 5.  📝 TODO: Thêm routes vào App.jsx
+- 6.  📝 TODO: Kết nối API (hiện giử dùng mock data)
+- 7.  📝 TODO: Thêm authentication protection (nếu cần)
+- \*/
+
+// Không cần export, file này chỉ là documentation
