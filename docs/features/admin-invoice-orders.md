@@ -27,7 +27,7 @@ Provide operational visibility over orders, payment methods, statuses, and invoi
 
 - Missing create/update/cancel/confirm order workflows in admin API.
 - Export action currently depends on frontend logic; no server export endpoint.
-- Order data model uses CommonJS while rest of backend uses ESM.
+- Order data model has been normalized to ES modules.
 
 ## Recommended Milestones
 

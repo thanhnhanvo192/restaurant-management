@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/shared/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/shared/components/ui/avatar";
 import { Bell, LogOut, User, Settings, ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
@@ -24,7 +28,6 @@ export function CustomerHeader() {
 
   const handleLogout = () => {
     // TODO: Gọi API logout
-    console.log("Logout");
     // Redirect đến login page hoặc home page
     // window.location.href = "/login";
   };

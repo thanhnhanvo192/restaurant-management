@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Download,
   ShoppingBag,
@@ -9,11 +9,10 @@ import {
   Wallet,
 } from "lucide-react";
 import {
+  addDays,
+  differenceInCalendarDays,
   eachDayOfInterval,
-  endOfDay,
   format,
-  isAfter,
-  isBefore,
   isValid,
   parseISO,
   subDays,
@@ -33,7 +32,12 @@ import {
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import { DateRangePicker } from "@/shared/components/ui/date-range-picker";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import {
@@ -44,11 +48,139 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
+import api from "@/services/api/client";
+import { toast } from "sonner";
 
 const CATEGORY_COLORS = ["#14b8a6", "#3b82f6", "#f59e0b", "#ef4444"];
+const ROLE_LABELS = {
+  admin: "Admin",
+  waiter: "Waiter",
+  kitchen: "Kitchen",
+};
 
 const formatCurrencyVND = (value) =>
   `${new Intl.NumberFormat("vi-VN").format(value)} ₫`;
+
+const getErrorMessage = (error, fallbackMessage) =>
+  error?.response?.data?.message || fallbackMessage;
+
+const buildStatisticsParams = (timeFilter, dateRange) => {
+  if (timeFilter !== "custom") {
+    return { period: timeFilter };
+  }
+
+  const fromDate = startOfDaySafe(dateRange.from);
+  const toDate = endOfDaySafe(dateRange.to);
+
+  if (!fromDate || !toDate || fromDate > toDate) {
+    return null;
+  }
+
+  return {
+    period: "custom",
+    from: format(fromDate, "yyyy-MM-dd"),
+    to: format(toDate, "yyyy-MM-dd"),
+  };
+};
+
+const getCurrentRange = (timeFilter, dateRange) => {
+  const today = new Date();
+
+  if (timeFilter === "today") {
+    return {
+      from: startOfDaySafe(format(today, "yyyy-MM-dd")),
+      to: endOfDaySafe(format(today, "yyyy-MM-dd")),
+    };
+  }
+
+  if (timeFilter === "week") {
+    return {
+      from: startOfDaySafe(format(subDays(today, 6), "yyyy-MM-dd")),
+      to: endOfDaySafe(format(today, "yyyy-MM-dd")),
+    };
+  }
+
+  if (timeFilter === "month") {
+    return {
+      from: startOfDaySafe(format(subDays(today, 29), "yyyy-MM-dd")),
+      to: endOfDaySafe(format(today, "yyyy-MM-dd")),
+    };
+  }
+
+  return {
+    from: startOfDaySafe(dateRange.from),
+    to: endOfDaySafe(dateRange.to),
+  };
+};
+
+const getPreviousRangeParams = (timeFilter, dateRange) => {
+  const range = getCurrentRange(timeFilter, dateRange);
+
+  if (!range.from || !range.to || range.from > range.to) {
+    return null;
+  }
+
+  const daySpan = differenceInCalendarDays(range.to, range.from) + 1;
+  const previousTo = addDays(range.from, -1);
+  const previousFrom = addDays(previousTo, -(daySpan - 1));
+
+  return {
+    period: "custom",
+    from: format(previousFrom, "yyyy-MM-dd"),
+    to: format(previousTo, "yyyy-MM-dd"),
+  };
+};
+
+const mapStatisticsToAnalyticsData = ({
+  statistics,
+  dashboard,
+  previousRevenue,
+}) => {
+  const revenueSeries = Array.isArray(statistics?.charts?.revenueSeries)
+    ? statistics.charts.revenueSeries.map((point) => ({
+        label: point.label,
+        revenue: Number(point.revenue || 0),
+      }))
+    : [];
+
+  const categoryRevenue = Array.isArray(statistics?.charts?.categoryBreakdown)
+    ? statistics.charts.categoryBreakdown.map((item) => ({
+        name: item.categoryId || "Chưa phân loại",
+        value: Number(item.revenue || 0),
+      }))
+    : [];
+
+  const topStaff = Array.isArray(statistics?.charts?.staffBreakdown)
+    ? statistics.charts.staffBreakdown
+        .map((item) => ({
+          name: ROLE_LABELS[item.role] || item.role,
+          totalStaff: Number(item.count || 0),
+          activeStaff: Number(item.activeCount || 0),
+          newStaff: Number(item.newInPeriod || 0),
+        }))
+        .sort((a, b) => b.totalStaff - a.totalStaff)
+    : [];
+
+  const bestSeller = dashboard?.top?.menus?.[0]
+    ? {
+        name: dashboard.top.menus[0].name,
+        quantity: Number(dashboard.top.menus[0].soldCount || 0),
+      }
+    : {
+        name: "Chưa có dữ liệu",
+        quantity: 0,
+      };
+
+  return {
+    revenueSeries,
+    totalOrders: Number(statistics?.summary?.completedOrders || 0),
+    newCustomers: Number(statistics?.summary?.newCustomers || 0),
+    bestSeller,
+    previousRevenue: Number(previousRevenue || 0),
+    categoryRevenue,
+    topStaff,
+  };
+};
 
 const MOCK_ANALYTICS = {
   today: {
@@ -157,7 +289,7 @@ const buildCustomAnalytics = (dateRange, referenceData) => {
   const fromDate = startOfDaySafe(dateRange.from);
   const toDate = endOfDaySafe(dateRange.to);
 
-  if (!fromDate || !toDate || isAfter(fromDate, toDate)) {
+  if (!fromDate || !toDate || fromDate > toDate) {
     return referenceData;
   }
 
@@ -435,16 +567,17 @@ function TopStaffTable({ data }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Top 5 nhân viên</CardTitle>
+        <CardTitle>Nhân sự theo vai trò</CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>STT</TableHead>
-              <TableHead>Tên nhân viên</TableHead>
-              <TableHead className="text-right">Số đơn</TableHead>
-              <TableHead className="text-right">Doanh thu</TableHead>
+              <TableHead>Vai trò</TableHead>
+              <TableHead className="text-right">Tổng nhân sự</TableHead>
+              <TableHead className="text-right">Đang hoạt động</TableHead>
+              <TableHead className="text-right">Mới trong kỳ</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -454,9 +587,12 @@ function TopStaffTable({ data }) {
                   <Badge variant="outline">#{index + 1}</Badge>
                 </TableCell>
                 <TableCell className="font-medium">{staff.name}</TableCell>
-                <TableCell className="text-right">{staff.orders}</TableCell>
+                <TableCell className="text-right">{staff.totalStaff}</TableCell>
+                <TableCell className="text-right">
+                  {staff.activeStaff}
+                </TableCell>
                 <TableCell className="font-semibold text-right">
-                  {formatCurrencyVND(staff.revenue)}
+                  {staff.newStaff}
                 </TableCell>
               </TableRow>
             ))}
@@ -468,18 +604,83 @@ function TopStaffTable({ data }) {
 }
 
 const AnalyticsDashboardPage = () => {
-  const [analyticsData] = useState(MOCK_ANALYTICS);
+  const [analyticsData, setAnalyticsData] = useState(MOCK_ANALYTICS);
   const [timeFilter, setTimeFilter] = useState("week");
   const [dateRange, setDateRange] = useState({
     from: format(subDays(new Date(), 6), "yyyy-MM-dd"),
     to: format(new Date(), "yyyy-MM-dd"),
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const fetchAnalyticsData = useCallback(async () => {
+    const params = buildStatisticsParams(timeFilter, dateRange);
+
+    if (!params) {
+      setErrorMessage("Khoảng thời gian tùy chỉnh không hợp lệ.");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setErrorMessage("");
+
+      const previousRangeParams = getPreviousRangeParams(timeFilter, dateRange);
+
+      const [
+        statisticsResponse,
+        dashboardResponse,
+        previousStatisticsResponse,
+      ] = await Promise.all([
+        api.get("/admin/statistics", { params }),
+        api.get("/admin/dashboard", { params }),
+        previousRangeParams
+          ? api.get("/admin/statistics", {
+              params: previousRangeParams,
+            })
+          : Promise.resolve(null),
+      ]);
+
+      const statistics = statisticsResponse?.data?.statistics;
+      const dashboard = dashboardResponse?.data?.dashboard;
+      const previousRevenue =
+        previousStatisticsResponse?.data?.statistics?.summary?.totalRevenue ||
+        0;
+
+      const nextData = mapStatisticsToAnalyticsData({
+        statistics,
+        dashboard,
+        previousRevenue,
+      });
+
+      setAnalyticsData((previousData) => ({
+        ...previousData,
+        [timeFilter]: nextData,
+      }));
+    } catch (error) {
+      const message = getErrorMessage(
+        error,
+        "Không thể tải dữ liệu thống kê. Vui lòng thử lại.",
+      );
+      setErrorMessage(message);
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [dateRange, timeFilter]);
+
+  useEffect(() => {
+    fetchAnalyticsData();
+  }, [fetchAnalyticsData]);
 
   const currentData = useMemo(() => {
     if (timeFilter === "today") return analyticsData.today;
     if (timeFilter === "week") return analyticsData.week;
     if (timeFilter === "month") return analyticsData.month;
-    return buildCustomAnalytics(dateRange, analyticsData.week);
+    return (
+      analyticsData.custom ??
+      buildCustomAnalytics(dateRange, analyticsData.week)
+    );
   }, [analyticsData, dateRange, timeFilter]);
 
   const totalRevenue = useMemo(
@@ -488,8 +689,7 @@ const AnalyticsDashboardPage = () => {
   );
 
   const handleExportReport = () => {
-    // Demo hành động export, thực tế sẽ gọi API backend tạo file.
-    window.alert("Đang xuất báo cáo PDF/Excel (mô phỏng).");
+    toast.info("Tính năng xuất báo cáo đang được triển khai.");
   };
 
   return (
@@ -541,6 +741,16 @@ const AnalyticsDashboardPage = () => {
         <RevenueAreaChart data={currentData.revenueSeries} />
         <TopStaffTable data={currentData.topStaff} />
       </div>
+
+      {isLoading ? (
+        <p className="text-sm text-muted-foreground">
+          Đang tải dữ liệu thống kê...
+        </p>
+      ) : null}
+
+      {errorMessage ? (
+        <p className="text-sm text-destructive">{errorMessage}</p>
+      ) : null}
 
       <CategoryPieChart data={currentData.categoryRevenue} />
 

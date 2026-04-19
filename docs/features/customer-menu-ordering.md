@@ -8,37 +8,37 @@ Provide a customer-facing menu browsing and cart experience that supports discov
 
 - Customer route: `/customer/menu`
 - Frontend page: `frontend/src/features/customer-menu/pages/customer-menu-page.jsx`
-- Expected backend APIs (not yet implemented):
+- Backend APIs:
   - `GET /client/menus`
-  - `POST /client/orders` (or cart checkout endpoint)
+  - `POST /client/orders` (checkout endpoint)
 
 ## Current Implementation Status
 
-- Status: Visual UX complete but currently mock-data based.
-- Item list, categories, and cart logic exist client-side only.
+- Status: API-backed menu browsing and checkout are implemented.
+- Item list, categories, and cart logic now resolve against backend data.
 
 ## Behavior Implemented
 
 - Search and category filtering.
 - Add/remove quantity in cart.
 - Running total calculation and interactive product cards.
+- Checkout posts persistent orders to the customer backend.
 
 ## Gaps / Risks
 
-- Menu data not synchronized with admin menu backend.
-- Cart/order actions are not persisted server-side.
-- Price and availability can diverge from actual backend data.
+- Menu and category sync still depend on the admin data model staying consistent.
+- Availability should continue to be validated before checkout.
+- Payment and confirmation policy may still need to be formalized in product rules.
 
 ## Recommended Milestones
 
-1. Implement client menu browse endpoint with availability filtering.
-2. Connect frontend menu list to API.
-3. Introduce checkout endpoint with order creation.
-4. Add stock/availability check before submit.
+1. Keep menu/category response shapes stable for the cart UI.
+2. Add any missing checkout validation rules if pricing or payment policy changes.
+3. Tighten empty-state and error-state handling for failed menu fetches or submissions.
 
 ## Acceptance Criteria (Target)
 
 - Menu reflects real backend data.
 - Cart checkout creates persistent order.
-- Unavailable items are blocked before payment/confirm.
+- Unavailable items are blocked before confirmation.
 - User feedback for order success/failure is clear.

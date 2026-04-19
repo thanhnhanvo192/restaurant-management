@@ -1,7 +1,9 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
+import api from "@/services/api/client";
 import {
   ArrowRight,
   CalendarDays,
@@ -99,6 +101,33 @@ function StarRating({ rating }) {
 }
 
 export default function CustomerHome() {
+  const [featuredDishes, setFeaturedDishes] = useState(FEATURED_DISHES);
+
+  useEffect(() => {
+    const loadMenus = async () => {
+      try {
+        const response = await api.get("/client/menus");
+        const menus = response.data?.menus || [];
+        if (menus.length > 0) {
+          setFeaturedDishes(
+            menus.slice(0, 4).map((menu) => ({
+              name: menu.name,
+              price: menu.price,
+              rating: menu.soldCount
+                ? Math.min(5, 4 + Math.min(menu.soldCount / 100, 1))
+                : 4.5,
+              image: menu.imageUrl || menu.image || FEATURED_DISHES[0].image,
+            })),
+          );
+        }
+      } catch {
+        // Keep fallback content if backend is unavailable.
+      }
+    };
+
+    loadMenus();
+  }, []);
+
   return (
     <div className="space-y-8 md:space-y-10">
       {/* Hero Banner */}
@@ -123,7 +152,7 @@ export default function CustomerHome() {
 
             <div className="space-y-4">
               <h1 className="max-w-2xl text-4xl font-black tracking-tight text-white md:text-5xl lg:text-6xl">
-                Chào mừng bạn đến với Nhà hàng ABC
+                Chào mừng bạn đến với Nhà hàng NATAVU
               </h1>
               <p className="max-w-xl text-base leading-7 text-white/90 md:text-lg">
                 Món ngon - Không gian ấm cúng - Phục vụ nhanh chóng
@@ -235,7 +264,7 @@ export default function CustomerHome() {
         </div>
 
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {FEATURED_DISHES.map((dish) => (
+          {featuredDishes.map((dish) => (
             <Card
               key={dish.name}
               className="overflow-hidden transition-all duration-200 bg-white border-orange-100 shadow-sm group hover:-translate-y-1 hover:shadow-xl hover:shadow-orange-100"

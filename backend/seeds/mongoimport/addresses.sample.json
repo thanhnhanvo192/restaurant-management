@@ -1,0 +1,57 @@
+[
+  {
+    "_id": { "$oid": "672000000000000000000101" },
+    "customerId": { "$oid": "670000000000000000000001" },
+    "name": "Home",
+    "detail": "12 Nguyen Trai, District 1, Ho Chi Minh City",
+    "phone": "0901000001",
+    "isDefault": true,
+    "type": "home",
+    "createdAt": { "$date": "2026-04-15T03:00:00.000Z" },
+    "updatedAt": { "$date": "2026-04-15T03:00:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "672000000000000000000102" },
+    "customerId": { "$oid": "670000000000000000000001" },
+    "name": "Office",
+    "detail": "88 Le Loi, District 1, Ho Chi Minh City",
+    "phone": "0901000001",
+    "isDefault": false,
+    "type": "office",
+    "createdAt": { "$date": "2026-04-15T03:10:00.000Z" },
+    "updatedAt": { "$date": "2026-04-15T03:10:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "672000000000000000000103" },
+    "customerId": { "$oid": "670000000000000000000002" },
+    "name": "Apartment",
+    "detail": "15 Nguyen Huu Canh, Binh Thanh, Ho Chi Minh City",
+    "phone": "0901000002",
+    "isDefault": true,
+    "type": "home",
+    "createdAt": { "$date": "2026-04-16T05:00:00.000Z" },
+    "updatedAt": { "$date": "2026-04-16T05:00:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "672000000000000000000104" },
+    "customerId": { "$oid": "670000000000000000000003" },
+    "name": "Parents House",
+    "detail": "20 Tran Hung Dao, District 5, Ho Chi Minh City",
+    "phone": "0901000003",
+    "isDefault": true,
+    "type": "home",
+    "createdAt": { "$date": "2026-04-16T06:00:00.000Z" },
+    "updatedAt": { "$date": "2026-04-16T06:00:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "672000000000000000000105" },
+    "customerId": { "$oid": "670000000000000000000004" },
+    "name": "Warehouse",
+    "detail": "6 Quang Trung, Go Vap, Ho Chi Minh City",
+    "phone": "0901000004",
+    "isDefault": false,
+    "type": "other",
+    "createdAt": { "$date": "2026-04-17T02:00:00.000Z" },
+    "updatedAt": { "$date": "2026-04-17T02:00:00.000Z" }
+  }
+]

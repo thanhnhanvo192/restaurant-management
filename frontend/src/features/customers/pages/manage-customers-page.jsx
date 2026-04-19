@@ -14,7 +14,12 @@ import {
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
 import {
   Pagination,
@@ -448,9 +453,8 @@ const ManageCustomersPage = () => {
     try {
       const res = await api.get("/admin/customers");
       setCustomers(res.data.customers);
-      console.log(customers);
     } catch (error) {
-      console.error("Lỗi khi tải danh sách khách hàng:", error);
+      toast.error("Lỗi khi tải danh sách khách hàng");
     }
   };
 

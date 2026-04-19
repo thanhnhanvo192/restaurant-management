@@ -1,5 +1,15 @@
 import { NavDocuments } from "@/shared/components/layout/nav-documents";
 import { NavUser } from "@/shared/components/layout/nav-user";
+import api from "@/services/api/client";
+import {
+  clearAdminSession,
+  getAdminAuthHeaders,
+  getAdminProfileCache,
+  getAdminRefreshToken,
+} from "@/services/admin-session";
+import { useMemo } from "react";
+import { useNavigate } from "react-router";
+import { toast } from "sonner";
 import {
   Sidebar,
   SidebarContent,
@@ -23,11 +33,6 @@ import {
 const prefixAdmin = "/admin";
 
 const data = {
-  user: {
-    name: "Võ Thành Nhân",
-    email: "vothanhnhan1902@gmail.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   documents: [
     {
       name: "Dashboard",
@@ -68,6 +73,38 @@ const data = {
 };
 
 export function AppSidebar({ ...props }) {
+  const navigate = useNavigate();
+  const cachedAdmin = getAdminProfileCache();
+
+  const user = useMemo(
+    () => ({
+      name: cachedAdmin?.fullName || "Admin",
+      email: cachedAdmin?.email || "",
+      avatar: "/avatars/shadcn.jpg",
+    }),
+    [cachedAdmin?.email, cachedAdmin?.fullName],
+  );
+
+  const handleLogout = async () => {
+    try {
+      await api.post(
+        "/auth/admin/logout",
+        {
+          refreshToken: getAdminRefreshToken(),
+        },
+        {
+          headers: getAdminAuthHeaders(),
+        },
+      );
+    } catch {
+      // Ignore logout API errors and clear local session anyway.
+    } finally {
+      clearAdminSession();
+      toast.success("Da dang xuat");
+      navigate("/admin/login", { replace: true });
+    }
+  };
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -91,7 +128,7 @@ export function AppSidebar({ ...props }) {
       </SidebarContent>
 
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} onLogout={handleLogout} />
       </SidebarFooter>
     </Sidebar>
   );

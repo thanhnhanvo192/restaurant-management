@@ -18,6 +18,8 @@ import OrderHistoryPage from "@/features/customer-orders/pages/order-history-pag
 import ProfilePage from "@/features/profile/pages/profile-page";
 import HomePage from "@/features/home/pages/home-page";
 import NotFound from "@/features/errors/pages/not-found-page";
+import AdminLoginPage from "@/features/auth/pages/admin-login-page";
+import CustomerLoginPage from "@/features/auth/pages/customer-login-page";
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
       <BrowserRouter>
         <Toaster richColors position="top-right" />
         <Routes>
+          <Route path="/login" element={<CustomerLoginPage />} />
+          <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="tables" element={<Table />} />

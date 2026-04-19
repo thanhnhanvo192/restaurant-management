@@ -10,6 +10,7 @@ import {
   Smartphone,
   UserRound,
 } from "lucide-react";
+import { toast } from "sonner";
 import {
   endOfDay,
   format,
@@ -23,7 +24,12 @@ import { vi } from "date-fns/locale";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import { DateRangePicker } from "@/shared/components/ui/date-range-picker";
 import {
   Dialog,
@@ -70,12 +76,18 @@ const PAYMENT_METHODS = {
 };
 
 const STATUS_LABELS = {
-  success: "Thành công",
+  pending: "Đang chờ",
+  confirmed: "Đã xác nhận",
+  preparing: "Đang chuẩn bị",
+  completed: "Hoàn thành",
   canceled: "Đã hủy",
 };
 
 const STATUS_CLASS_MAP = {
-  success: "bg-emerald-100 text-emerald-700",
+  pending: "bg-amber-100 text-amber-700",
+  confirmed: "bg-sky-100 text-sky-700",
+  preparing: "bg-indigo-100 text-indigo-700",
+  completed: "bg-emerald-100 text-emerald-700",
   canceled: "bg-red-100 text-red-700",
 };
 
@@ -92,11 +104,12 @@ const currencyFormatter = new Intl.NumberFormat("vi-VN", {
 });
 
 const toInvoiceWithTotals = (invoice) => {
-  const subtotal = invoice.items.reduce(
+  const subtotalFromItems = (invoice.items || []).reduce(
     (sum, item) => sum + item.quantity * item.unitPrice,
     0,
   );
-  const vat = Math.round(subtotal * VAT_RATE);
+  const subtotal = Number(invoice.subtotal ?? subtotalFromItems);
+  const vat = Number(invoice.vat ?? Math.round(subtotal * VAT_RATE));
   const total = subtotal + vat;
 
   return {
@@ -104,6 +117,28 @@ const toInvoiceWithTotals = (invoice) => {
     subtotal,
     vat,
     total,
+  };
+};
+
+const toInvoiceViewModel = (order) => {
+  const rawId = order.orderCode || order.id || order._id || "";
+  const orderId = String(rawId);
+
+  return {
+    id: orderId,
+    tableLabel: order.tableId ? `Bàn ${order.tableId}` : "Mang về",
+    customer: {
+      ten: order.customerSnapshot?.name || "Khách lẻ",
+      sdt: order.customerSnapshot?.phone || "Không có SĐT",
+      email: order.customerSnapshot?.email || "",
+    },
+    items: Array.isArray(order.items) ? order.items : [],
+    paymentMethod: order.paymentMethod || "cash",
+    status: order.status || "pending",
+    createdAt: order.createdAt,
+    subtotal: Number(order.subtotal || 0),
+    vat: Number(order.taxAmount || 0),
+    totalAmount: Number(order.totalAmount || 0),
   };
 };
 
@@ -427,10 +462,12 @@ const ManageInvoicesPage = () => {
   const fetchInvoices = async () => {
     try {
       const res = await api.get("/admin/orders");
-      setInvoices(res.data.orders);
-      console.log("Hóa đơn đã tải:", res.data.orders);
+      const nextInvoices = (res.data?.orders || [])
+        .map(toInvoiceViewModel)
+        .map(toInvoiceWithTotals);
+      setInvoices(nextInvoices);
     } catch (error) {
-      console.error("Lỗi khi tải hóa đơn:", error);
+      toast.error("Lỗi khi tải hóa đơn");
     }
   };
 
@@ -445,10 +482,18 @@ const ManageInvoicesPage = () => {
       // Hỗ trợ tìm kiếm theo mã HD, bàn, tên khách hàng hoặc số điện thoại.
       const matchesSearch =
         normalizedSearch.length === 0 ||
-        invoice.id.toLowerCase().includes(normalizedSearch) ||
-        invoice.tableLabel.toLowerCase().includes(normalizedSearch) ||
-        invoice.customer.ten.toLowerCase().includes(normalizedSearch) ||
-        invoice.customer.sdt.toLowerCase().includes(normalizedSearch);
+        String(invoice.id || "")
+          .toLowerCase()
+          .includes(normalizedSearch) ||
+        String(invoice.tableLabel || "")
+          .toLowerCase()
+          .includes(normalizedSearch) ||
+        String(invoice.customer?.ten || "")
+          .toLowerCase()
+          .includes(normalizedSearch) ||
+        String(invoice.customer?.sdt || "")
+          .toLowerCase()
+          .includes(normalizedSearch);
 
       const matchesPayment =
         paymentFilter === "all" || invoice.paymentMethod === paymentFilter;

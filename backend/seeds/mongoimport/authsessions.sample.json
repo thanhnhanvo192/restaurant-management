@@ -1,0 +1,51 @@
+[
+  {
+    "_id": { "$oid": "673000000000000000000101" },
+    "actorType": "customer",
+    "customerId": { "$oid": "670000000000000000000001" },
+    "accessTokenHash": "sha256:0e4f6f06f41b2a8451d9392f545f8d3bdb73bdf37a6c4a38b8971bc9e0a00111",
+    "refreshTokenHash": "sha256:4a39f74a694d72a2410fb426f172d97f3b0ec14fb5c16d36295e22578f8b0021",
+    "accessTokenExpiresAt": { "$date": "2026-04-19T12:30:00.000Z" },
+    "refreshTokenExpiresAt": { "$date": "2026-05-19T11:30:00.000Z" },
+    "lastUsedAt": { "$date": "2026-04-19T11:45:00.000Z" },
+    "createdAt": { "$date": "2026-04-19T10:30:00.000Z" },
+    "updatedAt": { "$date": "2026-04-19T11:45:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "673000000000000000000102" },
+    "actorType": "customer",
+    "customerId": { "$oid": "670000000000000000000002" },
+    "accessTokenHash": "sha256:95d5f6bb03dbd219e1386186933cdf4f2324f80fd9d743209ff4fb1df4f90031",
+    "refreshTokenHash": "sha256:3333f104877e2f7c5d8ad5236f2fdb4c6f64d4d2deee266e1f2a2c81b4f90041",
+    "accessTokenExpiresAt": { "$date": "2026-04-19T13:00:00.000Z" },
+    "refreshTokenExpiresAt": { "$date": "2026-05-19T12:00:00.000Z" },
+    "lastUsedAt": { "$date": "2026-04-19T12:10:00.000Z" },
+    "createdAt": { "$date": "2026-04-19T11:00:00.000Z" },
+    "updatedAt": { "$date": "2026-04-19T12:10:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "673000000000000000000103" },
+    "actorType": "admin",
+    "staffId": { "$oid": "670000000000000000000201" },
+    "accessTokenHash": "sha256:9288b59dbf34b73bf0f74a0631f676e6e7ab2bb0168106ec2f8f1381b4f90051",
+    "refreshTokenHash": "sha256:7d468c66f1d8ba26f730f3d75f163f3cf6b66e6a47a9fbbf2bb5a5e4f4f90061",
+    "accessTokenExpiresAt": { "$date": "2026-04-19T14:00:00.000Z" },
+    "refreshTokenExpiresAt": { "$date": "2026-05-19T13:00:00.000Z" },
+    "lastUsedAt": { "$date": "2026-04-19T13:10:00.000Z" },
+    "createdAt": { "$date": "2026-04-19T12:00:00.000Z" },
+    "updatedAt": { "$date": "2026-04-19T13:10:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "673000000000000000000104" },
+    "actorType": "admin",
+    "staffId": { "$oid": "670000000000000000000202" },
+    "accessTokenHash": "sha256:ea35706d0c1f01e513f8986cbf3c1a4ea315e55ca4b7ed3dd37e9df7f4f90071",
+    "refreshTokenHash": "sha256:63bb503968ea2f26f7d341919abd6f6d1737e972f2bf80f5b7809458f4f90081",
+    "accessTokenExpiresAt": { "$date": "2026-04-20T01:00:00.000Z" },
+    "refreshTokenExpiresAt": { "$date": "2026-05-20T00:00:00.000Z" },
+    "lastUsedAt": { "$date": "2026-04-19T23:00:00.000Z" },
+    "revokedAt": { "$date": "2026-04-20T00:30:00.000Z" },
+    "createdAt": { "$date": "2026-04-19T22:00:00.000Z" },
+    "updatedAt": { "$date": "2026-04-20T00:30:00.000Z" }
+  }
+]

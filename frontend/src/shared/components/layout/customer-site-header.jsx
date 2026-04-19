@@ -12,7 +12,6 @@ import {
 export function CustomerSiteHeader() {
   const handleLogout = () => {
     // TODO: Gọi API logout
-    console.log("Logout");
   };
 
   return (

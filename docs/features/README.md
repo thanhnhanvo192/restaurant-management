@@ -28,5 +28,5 @@ This folder contains feature-level specifications for the restaurant-management 
 ## Notes
 
 - Route map comes from `frontend/src/app/App.jsx` and `backend/src/routes/admin/index.route.js`.
-- Customer backend route/controller layer is currently missing (`backend/src/routes/client`, `backend/src/controllers/client`).
+- Customer backend route/controller layer now exists (`backend/src/routes/client`, `backend/src/controllers/client`) and is mounted from `backend/src/server.js`.
 - Prioritized implementation work is tracked in `docs/tasks.md`.

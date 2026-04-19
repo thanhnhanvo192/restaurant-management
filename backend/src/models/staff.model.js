@@ -29,9 +29,16 @@ const staffSchema = new mongoose.Schema(
       enum: ["admin", "waiter", "kitchen"],
     },
 
+    passwordHash: {
+      type: String,
+      required: true,
+      select: false,
+    },
+
     startDate: {
       type: Date,
       required: true,
+      default: Date.now,
     },
 
     active: {
@@ -43,6 +50,10 @@ const staffSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
+
+staffSchema.index({ role: 1, active: 1 });
+staffSchema.index({ createdAt: -1 });
+staffSchema.index({ fullName: 1 });
 
 const Staff = mongoose.model("Staff", staffSchema);
 

@@ -1,9 +1,16 @@
 import { AppSidebar } from "@/shared/components/layout/app-sidebar";
 import { SiteHeader } from "@/shared/components/layout/site-header";
 import { SidebarInset, SidebarProvider } from "@/shared/components/ui/sidebar";
-import { Outlet } from "react-router";
+import { isAdminAuthenticated } from "@/services/admin-session";
+import { Navigate, Outlet } from "react-router";
 
 export default function AdminLayout() {
+  const hasAdminToken = isAdminAuthenticated();
+
+  if (!hasAdminToken) {
+    return <Navigate to="/admin/login" replace />;
+  }
+
   return (
     <SidebarProvider
       style={{

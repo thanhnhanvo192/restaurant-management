@@ -1,0 +1,5 @@
+export default {
+  testEnvironment: "node",
+  testMatch: ["**/?(*.)+(test).js"],
+  collectCoverageFrom: ["src/**/*.js", "!src/**/*.test.js"],
+};

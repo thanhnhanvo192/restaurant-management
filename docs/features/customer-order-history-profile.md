@@ -14,34 +14,33 @@ Give customers access to their past orders, profile details, addresses, and secu
   - `frontend/src/features/customer-orders/pages/order-history-page.jsx`
   - `frontend/src/features/profile/pages/profile-page.jsx`
   - `frontend/src/features/customer-dashboard/pages/customer-dashboard-page.jsx`
-- Expected backend APIs (not yet implemented):
+- Backend APIs:
   - `GET /client/orders`
   - `GET/PUT /client/profile`
-  - `GET/POST/PUT /client/addresses`
+  - `GET/POST/PUT/DELETE /client/addresses`
 
 ## Current Implementation Status
 
-- Status: Mostly mock-driven UI.
-- Dashboard, order history, and profile currently rely on local/mock data.
+- Status: API-backed and connected to the customer auth/session flow.
+- Dashboard, order history, profile, password, notification settings, and addresses now use the backend.
 
 ## Behavior Implemented
 
 - Order list filtering and expandable detail cards.
-- Profile view/edit tabs and address default toggling.
-- Dashboard quick summary cards and recent order placeholders.
+- Profile view/edit tabs, password changes, and address default toggling.
+- Dashboard quick summary cards and recent order data from `/client/dashboard`.
 
 ## Gaps / Risks
 
-- No customer authentication context; identity is implicit/mock.
-- Profile and address edits are not persisted.
-- Order history not sourced from backend order records.
+- Session expiry handling should stay aligned with refresh-token behavior.
+- Customer-facing error/loading states should remain consistent across the three pages.
+- Address and profile field changes need to stay aligned with backend schema validation.
 
 ## Recommended Milestones
 
-1. Build customer identity/auth layer.
-2. Add profile and order-history APIs.
-3. Replace local state and mock constants with API fetch/mutation flows.
-4. Add loading/error/empty states for all customer account screens.
+1. Keep customer auth/session handling consistent across all pages.
+2. Tighten error messaging for profile and address updates.
+3. Add any missing account-level polish or analytics if the product expands.
 
 ## Acceptance Criteria (Target)
 

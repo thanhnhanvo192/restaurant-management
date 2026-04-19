@@ -1,9 +1,9 @@
-/**
- * ProfilePage - Trang thông tin cá nhân
- * Khách hàng có thể xem và chỉnh sửa thông tin cá nhân, quản lý địa chỉ, mật khẩu
- */
-
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -14,72 +14,400 @@ import {
 } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Separator } from "@/shared/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/shared/components/ui/tabs";
+import { Bell, Camera, Lock, MapPin, User } from "lucide-react";
 import { toast } from "sonner";
-import { User, Lock, MapPin, Bell, Camera } from "lucide-react";
+
+import api from "@/services/api/client";
+import {
+  clearCustomerSession,
+  getCustomerAuthHeaders,
+  getCustomerProfileCache,
+  setCustomerProfileCache,
+} from "@/services/customer-session";
+
+const EMPTY_PROFILE = {
+  name: "Khách hàng",
+  email: "",
+  phone: "",
+  avatar: "/avatars/customer.jpg",
+  avatarUrl: "",
+  note: "",
+  tier: "bronze",
+  points: 0,
+  notificationSettings: {
+    orderUpdates: true,
+    promotions: true,
+    emailMarketing: false,
+  },
+};
+
+const EMPTY_ADDRESS = {
+  name: "",
+  detail: "",
+  phone: "",
+  isDefault: false,
+  type: "home",
+};
+
+const extractErrorMessage = (error, fallback) =>
+  error?.response?.data?.message || error?.message || fallback;
+
+const buildAuthConfig = () => ({
+  headers: getCustomerAuthHeaders(),
+});
 
 export default function ProfilePage() {
-  // State thông tin cá nhân
-  const [profile, setProfile] = useState({
-    name: "Nguyễn Văn A",
-    email: "nguyenvana@gmail.com",
-    phone: "0901234567",
-    avatar: "/avatars/customer.jpg",
-  });
-
-  // State địa chỉ
-  const [addresses, setAddresses] = useState([
-    {
-      id: 1,
-      name: "Nhà riêng",
-      detail: "123 Đường Nguyễn Huệ, Quận 1, TP.HCM",
-      isDefault: true,
-    },
-    {
-      id: 2,
-      name: "Công ty",
-      detail: "456 Đường Lê Lợi, Quận 1, TP.HCM",
-      isDefault: false,
-    },
-  ]);
-
-  // State form chỉnh sửa
+  const cachedProfile = getCustomerProfileCache();
+  const [profile, setProfile] = useState(cachedProfile || EMPTY_PROFILE);
+  const [addresses, setAddresses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [savingPassword, setSavingPassword] = useState(false);
+  const [savingNotifications, setSavingNotifications] = useState(false);
+  const [savingAddress, setSavingAddress] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [editForm, setEditForm] = useState(profile);
+  const [editForm, setEditForm] = useState({
+    name: cachedProfile?.name || EMPTY_PROFILE.name,
+    email: cachedProfile?.email || EMPTY_PROFILE.email,
+    phone: cachedProfile?.phone || EMPTY_PROFILE.phone,
+    avatar: cachedProfile?.avatar || EMPTY_PROFILE.avatar,
+    note: cachedProfile?.note || EMPTY_PROFILE.note,
+  });
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [notificationForm, setNotificationForm] = useState(
+    cachedProfile?.notificationSettings || EMPTY_PROFILE.notificationSettings,
+  );
+  const [addressForm, setAddressForm] = useState(EMPTY_ADDRESS);
+  const [editingAddressId, setEditingAddressId] = useState(null);
+  const [addressFormVisible, setAddressFormVisible] = useState(false);
 
-  const handleProfileChange = (e) => {
-    const { name, value } = e.target;
-    setEditForm((prev) => ({ ...prev, [name]: value }));
+  const isAuthenticated = Boolean(getCustomerAuthHeaders().Authorization);
+
+  const loadProfile = useCallback(async () => {
+    if (!isAuthenticated) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const [profileResponse, addressesResponse] = await Promise.all([
+        api.get("/client/profile", buildAuthConfig()),
+        api.get("/client/addresses", buildAuthConfig()),
+      ]);
+
+      const nextProfile = profileResponse.data?.profile || EMPTY_PROFILE;
+      const nextAddresses = addressesResponse.data?.addresses || [];
+
+      const normalizedProfile = {
+        name: nextProfile.name || EMPTY_PROFILE.name,
+        email: nextProfile.email || "",
+        phone: nextProfile.phone || "",
+        avatar:
+          nextProfile.avatar ||
+          nextProfile.avatarUrl ||
+          "/avatars/customer.jpg",
+        avatarUrl: nextProfile.avatarUrl || nextProfile.avatar || "",
+        note: nextProfile.note || "",
+        tier: nextProfile.tier || "bronze",
+        points: nextProfile.points || 0,
+        notificationSettings: {
+          orderUpdates: nextProfile.notificationSettings?.orderUpdates ?? true,
+          promotions: nextProfile.notificationSettings?.promotions ?? true,
+          emailMarketing:
+            nextProfile.notificationSettings?.emailMarketing ?? false,
+        },
+      };
+
+      setProfile(normalizedProfile);
+      setEditForm({
+        name: normalizedProfile.name,
+        email: normalizedProfile.email,
+        phone: normalizedProfile.phone,
+        avatar: normalizedProfile.avatarUrl || normalizedProfile.avatar,
+        note: normalizedProfile.note,
+      });
+      setNotificationForm(normalizedProfile.notificationSettings);
+      setAddresses(nextAddresses);
+      setCustomerProfileCache(normalizedProfile);
+    } catch (error) {
+      toast.error(
+        extractErrorMessage(error, "Không thể tải thông tin khách hàng"),
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
+
+  const handleProfileChange = (event) => {
+    const { name, value } = event.target;
+    setEditForm((previous) => ({ ...previous, [name]: value }));
   };
 
-  const handleSaveProfile = () => {
-    setProfile(editForm);
-    setEditMode(false);
-    toast.success("Đã cập nhật thông tin cá nhân");
+  const handleSaveProfile = async (event) => {
+    event.preventDefault();
+
+    try {
+      setSavingProfile(true);
+      const response = await api.put(
+        "/client/profile",
+        {
+          name: editForm.name,
+          email: editForm.email,
+          phone: editForm.phone,
+          avatar: editForm.avatar,
+          note: editForm.note,
+        },
+        buildAuthConfig(),
+      );
+
+      const nextProfile = response.data?.profile;
+      if (nextProfile) {
+        const normalizedProfile = {
+          name: nextProfile.name || EMPTY_PROFILE.name,
+          email: nextProfile.email || "",
+          phone: nextProfile.phone || "",
+          avatar:
+            nextProfile.avatar ||
+            nextProfile.avatarUrl ||
+            "/avatars/customer.jpg",
+          avatarUrl: nextProfile.avatarUrl || nextProfile.avatar || "",
+          note: nextProfile.note || "",
+          tier: nextProfile.tier || profile.tier,
+          points: nextProfile.points ?? profile.points,
+          notificationSettings:
+            nextProfile.notificationSettings || profile.notificationSettings,
+        };
+
+        setProfile(normalizedProfile);
+        setEditForm({
+          name: normalizedProfile.name,
+          email: normalizedProfile.email,
+          phone: normalizedProfile.phone,
+          avatar: normalizedProfile.avatarUrl || normalizedProfile.avatar,
+          note: normalizedProfile.note,
+        });
+        setCustomerProfileCache(normalizedProfile);
+      }
+
+      setEditMode(false);
+      toast.success(response.data?.message || "Đã cập nhật thông tin cá nhân");
+    } catch (error) {
+      toast.error(extractErrorMessage(error, "Không thể cập nhật hồ sơ"));
+    } finally {
+      setSavingProfile(false);
+    }
   };
 
-  const handleChangePassword = () => {
-    toast.success("Mật khẩu đã được thay đổi");
+  const handleChangePassword = async (event) => {
+    event.preventDefault();
+
+    try {
+      setSavingPassword(true);
+      const response = await api.put(
+        "/client/profile/password",
+        passwordForm,
+        buildAuthConfig(),
+      );
+
+      setPasswordForm({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      toast.success(response.data?.message || "Mật khẩu đã được thay đổi");
+    } catch (error) {
+      toast.error(extractErrorMessage(error, "Không thể đổi mật khẩu"));
+    } finally {
+      setSavingPassword(false);
+    }
   };
 
-  const handleSetDefaultAddress = (id) => {
-    setAddresses(
-      addresses.map((addr) => ({
-        ...addr,
-        isDefault: addr.id === id,
-      })),
+  const handleNotificationToggle = (fieldName) => {
+    setNotificationForm((previous) => ({
+      ...previous,
+      [fieldName]: !previous[fieldName],
+    }));
+  };
+
+  const handleSaveNotificationSettings = async () => {
+    try {
+      setSavingNotifications(true);
+      const response = await api.put(
+        "/client/profile/notification-settings",
+        notificationForm,
+        buildAuthConfig(),
+      );
+
+      const nextProfile = response.data?.profile;
+      if (nextProfile) {
+        const normalizedProfile = {
+          ...profile,
+          notificationSettings:
+            nextProfile.notificationSettings || notificationForm,
+        };
+        setProfile(normalizedProfile);
+        setCustomerProfileCache(normalizedProfile);
+      }
+
+      toast.success(
+        response.data?.message || "Cập nhật cài đặt thông báo thành công",
+      );
+    } catch (error) {
+      toast.error(extractErrorMessage(error, "Không thể cập nhật thông báo"));
+    } finally {
+      setSavingNotifications(false);
+    }
+  };
+
+  const resetAddressForm = () => {
+    setAddressForm(EMPTY_ADDRESS);
+    setEditingAddressId(null);
+    setAddressFormVisible(false);
+  };
+
+  const startCreateAddress = () => {
+    setEditingAddressId(null);
+    setAddressForm(EMPTY_ADDRESS);
+    setAddressFormVisible(true);
+  };
+
+  const startEditAddress = (address) => {
+    setEditingAddressId(address.id);
+    setAddressForm({
+      name: address.name || "",
+      detail: address.detail || "",
+      phone: address.phone || "",
+      isDefault: Boolean(address.isDefault),
+      type: address.type || "home",
+    });
+    setAddressFormVisible(true);
+  };
+
+  const handleAddressChange = (event) => {
+    const { name, value, type, checked } = event.target;
+    setAddressForm((previous) => ({
+      ...previous,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleSaveAddress = async (event) => {
+    event.preventDefault();
+
+    try {
+      setSavingAddress(true);
+      const payload = {
+        name: addressForm.name,
+        detail: addressForm.detail,
+        phone: addressForm.phone,
+        isDefault: addressForm.isDefault,
+        type: addressForm.type,
+      };
+
+      const response = editingAddressId
+        ? await api.put(
+            `/client/addresses/${editingAddressId}`,
+            payload,
+            buildAuthConfig(),
+          )
+        : await api.post("/client/addresses", payload, buildAuthConfig());
+
+      const nextAddress = response.data?.address;
+      if (nextAddress) {
+        setAddresses((previous) => {
+          const filtered = previous.filter(
+            (address) => address.id !== nextAddress.id,
+          );
+          const nextList = [nextAddress, ...filtered];
+
+          if (nextAddress.isDefault) {
+            return nextList.map((address) => ({
+              ...address,
+              isDefault: address.id === nextAddress.id,
+            }));
+          }
+
+          return nextList;
+        });
+      }
+
+      toast.success(response.data?.message || "Đã lưu địa chỉ");
+      resetAddressForm();
+    } catch (error) {
+      toast.error(extractErrorMessage(error, "Không thể lưu địa chỉ"));
+    } finally {
+      setSavingAddress(false);
+    }
+  };
+
+  const handleDeleteAddress = async (addressId) => {
+    try {
+      await api.delete(`/client/addresses/${addressId}`, buildAuthConfig());
+      setAddresses((previous) =>
+        previous.filter((address) => address.id !== addressId),
+      );
+      toast.success("Đã xóa địa chỉ");
+    } catch (error) {
+      toast.error(extractErrorMessage(error, "Không thể xóa địa chỉ"));
+    }
+  };
+
+  const handleSetDefaultAddress = async (address) => {
+    try {
+      const response = await api.put(
+        `/client/addresses/${address.id}`,
+        { ...address, isDefault: true },
+        buildAuthConfig(),
+      );
+
+      const nextAddress = response.data?.address;
+      if (nextAddress) {
+        setAddresses((previous) =>
+          previous.map((item) => ({
+            ...item,
+            isDefault: item.id === nextAddress.id,
+          })),
+        );
+      }
+
+      toast.success(response.data?.message || "Đã cập nhật địa chỉ mặc định");
+    } catch (error) {
+      toast.error(extractErrorMessage(error, "Không thể đặt địa chỉ mặc định"));
+    }
+  };
+
+  if (!isAuthenticated && loading) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="p-6">
+            <p className="font-medium">Vui lòng đăng nhập để xem hồ sơ.</p>
+          </CardContent>
+        </Card>
+      </div>
     );
-    toast.success("Đã cập nhật địa chỉ mặc định");
-  };
+  }
 
   return (
     <div className="space-y-6">
-      {/* Tiêu đề */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Thông tin cá nhân</h1>
-        <p className="text-muted-foreground mt-2">
+        <p className="mt-2 text-muted-foreground">
           Quản lý hồ sơ, địa chỉ, và mật khẩu
         </p>
       </div>
@@ -100,7 +428,6 @@ export default function ProfilePage() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Tab: Hồ sơ */}
         <TabsContent value="profile">
           <Card>
             <CardHeader>
@@ -110,24 +437,31 @@ export default function ProfilePage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Avatar */}
               <div className="flex items-center gap-4">
                 <Avatar className="w-24 h-24">
-                  <AvatarImage src={profile.avatar} alt={profile.name} />
-                  <AvatarFallback>{profile.name.charAt(0)}</AvatarFallback>
+                  <AvatarImage
+                    src={profile.avatarUrl || profile.avatar}
+                    alt={profile.name}
+                  />
+                  <AvatarFallback>
+                    {profile.name?.charAt(0) || "K"}
+                  </AvatarFallback>
                 </Avatar>
-                <Button variant="outline" className="flex items-center gap-2">
-                  <Camera className="size-4" />
-                  Đổi ảnh đại diện
-                </Button>
+                <div className="space-y-2">
+                  <Button variant="outline" className="flex items-center gap-2">
+                    <Camera className="size-4" />
+                    Đổi ảnh đại diện
+                  </Button>
+                  <p className="text-xs text-muted-foreground">
+                    Ảnh đại diện hiện được lưu trong hồ sơ backend.
+                  </p>
+                </div>
               </div>
 
               <Separator />
 
-              {/* Form chỉnh sửa */}
               {editMode ? (
-                <form className="space-y-4">
-                  {/* Tên */}
+                <form className="space-y-4" onSubmit={handleSaveProfile}>
                   <div className="space-y-2">
                     <Label htmlFor="name">Tên đầy đủ</Label>
                     <Input
@@ -138,7 +472,6 @@ export default function ProfilePage() {
                     />
                   </div>
 
-                  {/* Email */}
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
@@ -150,7 +483,6 @@ export default function ProfilePage() {
                     />
                   </div>
 
-                  {/* Số điện thoại */}
                   <div className="space-y-2">
                     <Label htmlFor="phone">Số điện thoại</Label>
                     <Input
@@ -161,14 +493,44 @@ export default function ProfilePage() {
                     />
                   </div>
 
-                  {/* Buttons */}
+                  <div className="space-y-2">
+                    <Label htmlFor="avatar">Đường dẫn ảnh đại diện</Label>
+                    <Input
+                      id="avatar"
+                      name="avatar"
+                      value={editForm.avatar}
+                      onChange={handleProfileChange}
+                      placeholder="/avatars/customer.jpg"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="note">Ghi chú</Label>
+                    <Input
+                      id="note"
+                      name="note"
+                      value={editForm.note}
+                      onChange={handleProfileChange}
+                      placeholder="Ví dụ: Không ăn cay"
+                    />
+                  </div>
+
                   <div className="flex gap-2 pt-4">
-                    <Button onClick={handleSaveProfile}>Lưu thay đổi</Button>
+                    <Button type="submit" disabled={savingProfile}>
+                      {savingProfile ? "Đang lưu..." : "Lưu thay đổi"}
+                    </Button>
                     <Button
+                      type="button"
                       variant="outline"
                       onClick={() => {
                         setEditMode(false);
-                        setEditForm(profile);
+                        setEditForm({
+                          name: profile.name,
+                          email: profile.email,
+                          phone: profile.phone,
+                          avatar: profile.avatarUrl || profile.avatar,
+                          note: profile.note || "",
+                        });
                       }}
                     >
                       Hủy
@@ -177,7 +539,6 @@ export default function ProfilePage() {
                 </form>
               ) : (
                 <>
-                  {/* Display mode */}
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>
                       <Label className="text-muted-foreground">
@@ -187,13 +548,35 @@ export default function ProfilePage() {
                     </div>
                     <div>
                       <Label className="text-muted-foreground">Email</Label>
-                      <p className="font-medium">{profile.email}</p>
+                      <p className="font-medium">
+                        {profile.email || "Chưa cập nhật"}
+                      </p>
                     </div>
                     <div>
                       <Label className="text-muted-foreground">
                         Số điện thoại
                       </Label>
-                      <p className="font-medium">{profile.phone}</p>
+                      <p className="font-medium">
+                        {profile.phone || "Chưa cập nhật"}
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="text-muted-foreground">
+                        Hạng thành viên
+                      </Label>
+                      <p className="font-medium capitalize">{profile.tier}</p>
+                    </div>
+                    <div>
+                      <Label className="text-muted-foreground">
+                        Điểm tích lũy
+                      </Label>
+                      <p className="font-medium">{profile.points}</p>
+                    </div>
+                    <div>
+                      <Label className="text-muted-foreground">Ghi chú</Label>
+                      <p className="font-medium">
+                        {profile.note || "Không có"}
+                      </p>
                     </div>
                   </div>
 
@@ -206,67 +589,162 @@ export default function ProfilePage() {
           </Card>
         </TabsContent>
 
-        {/* Tab: Địa chỉ */}
         <TabsContent value="addresses">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-row items-center justify-between gap-4">
               <div>
                 <CardTitle>Địa chỉ của bạn</CardTitle>
                 <CardDescription>Quản lý các địa chỉ giao hàng</CardDescription>
               </div>
-              <Button>Thêm địa chỉ mới</Button>
+              <Button onClick={startCreateAddress}>Thêm địa chỉ mới</Button>
             </CardHeader>
             <CardContent className="space-y-4">
-              {addresses.map((address) => (
-                <div
-                  key={address.id}
-                  className="border rounded-lg p-4 space-y-3 hover:bg-accent transition-colors"
+              {addressFormVisible ? (
+                <form
+                  className="p-4 space-y-4 border rounded-2xl"
+                  onSubmit={handleSaveAddress}
                 >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-semibold">{address.name}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {address.detail}
-                      </p>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="address-name">Tên địa chỉ</Label>
+                      <Input
+                        id="address-name"
+                        name="name"
+                        value={addressForm.name}
+                        onChange={handleAddressChange}
+                      />
                     </div>
-                    {address.isDefault && (
-                      <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded">
-                        Mặc định
-                      </span>
-                    )}
+                    <div className="space-y-2">
+                      <Label htmlFor="address-phone">Số điện thoại</Label>
+                      <Input
+                        id="address-phone"
+                        name="phone"
+                        value={addressForm.phone}
+                        onChange={handleAddressChange}
+                      />
+                    </div>
                   </div>
 
-                  <div className="flex gap-2 pt-2 border-t">
-                    {!address.isDefault && (
+                  <div className="space-y-2">
+                    <Label htmlFor="address-detail">Địa chỉ chi tiết</Label>
+                    <Input
+                      id="address-detail"
+                      name="detail"
+                      value={addressForm.detail}
+                      onChange={handleAddressChange}
+                    />
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="address-type">Loại địa chỉ</Label>
+                      <Input
+                        id="address-type"
+                        name="type"
+                        value={addressForm.type}
+                        onChange={handleAddressChange}
+                      />
+                    </div>
+                    <label className="flex items-center gap-3 pt-7">
+                      <input
+                        type="checkbox"
+                        name="isDefault"
+                        checked={addressForm.isDefault}
+                        onChange={handleAddressChange}
+                      />
+                      <span className="text-sm">Đặt làm mặc định</span>
+                    </label>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button type="submit" disabled={savingAddress}>
+                      {savingAddress
+                        ? "Đang lưu..."
+                        : editingAddressId
+                          ? "Cập nhật"
+                          : "Thêm mới"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={resetAddressForm}
+                    >
+                      Hủy
+                    </Button>
+                  </div>
+                </form>
+              ) : null}
+
+              {loading ? (
+                <p className="text-sm text-muted-foreground">
+                  Đang tải địa chỉ...
+                </p>
+              ) : addresses.length > 0 ? (
+                addresses.map((address) => (
+                  <div
+                    key={address.id}
+                    className="p-4 space-y-3 transition-colors border rounded-lg hover:bg-accent"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold">{address.name}</h3>
+                          {address.isDefault ? (
+                            <span className="px-2 py-1 text-xs rounded bg-primary text-primary-foreground">
+                              Mặc định
+                            </span>
+                          ) : null}
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {address.detail}
+                        </p>
+                        {address.phone ? (
+                          <p className="text-sm text-muted-foreground">
+                            {address.phone}
+                          </p>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 pt-2 border-t">
+                      {!address.isDefault ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSetDefaultAddress(address)}
+                        >
+                          Đặt làm mặc định
+                        </Button>
+                      ) : null}
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleSetDefaultAddress(address.id)}
+                        onClick={() => startEditAddress(address)}
                       >
-                        Đặt làm mặc định
+                        Chỉnh sửa
                       </Button>
-                    )}
-                    <Button variant="outline" size="sm">
-                      Chỉnh sửa
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-destructive hover:text-destructive"
-                    >
-                      Xóa
-                    </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => handleDeleteAddress(address.id)}
+                      >
+                        Xóa
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Chưa có địa chỉ nào.
+                </p>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* Tab: Bảo mật */}
         <TabsContent value="settings">
           <div className="space-y-4">
-            {/* Đổi mật khẩu */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -278,43 +756,66 @@ export default function ProfilePage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="current-password">Mật khẩu hiện tại</Label>
-                  <Input
-                    id="current-password"
-                    type="password"
-                    placeholder="••••••••"
-                  />
-                </div>
+                <form className="space-y-4" onSubmit={handleChangePassword}>
+                  <div className="space-y-2">
+                    <Label htmlFor="current-password">Mật khẩu hiện tại</Label>
+                    <Input
+                      id="current-password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={passwordForm.currentPassword}
+                      onChange={(event) =>
+                        setPasswordForm((previous) => ({
+                          ...previous,
+                          currentPassword: event.target.value,
+                        }))
+                      }
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="new-password">Mật khẩu mới</Label>
-                  <Input
-                    id="new-password"
-                    type="password"
-                    placeholder="••••••••"
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="new-password">Mật khẩu mới</Label>
+                    <Input
+                      id="new-password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={passwordForm.newPassword}
+                      onChange={(event) =>
+                        setPasswordForm((previous) => ({
+                          ...previous,
+                          newPassword: event.target.value,
+                        }))
+                      }
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="confirm-password">Xác nhận mật khẩu</Label>
-                  <Input
-                    id="confirm-password"
-                    type="password"
-                    placeholder="••••••••"
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-password">Xác nhận mật khẩu</Label>
+                    <Input
+                      id="confirm-password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={passwordForm.confirmPassword}
+                      onChange={(event) =>
+                        setPasswordForm((previous) => ({
+                          ...previous,
+                          confirmPassword: event.target.value,
+                        }))
+                      }
+                    />
+                  </div>
 
-                <Button
-                  onClick={handleChangePassword}
-                  className="w-full sm:w-auto"
-                >
-                  Cập nhật mật khẩu
-                </Button>
+                  <Button
+                    type="submit"
+                    disabled={savingPassword}
+                    className="w-full sm:w-auto"
+                  >
+                    {savingPassword ? "Đang cập nhật..." : "Cập nhật mật khẩu"}
+                  </Button>
+                </form>
               </CardContent>
             </Card>
 
-            {/* Thông báo */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -324,9 +825,14 @@ export default function ProfilePage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <label className="flex items-center gap-3 p-3 border rounded cursor-pointer hover:bg-accent">
-                  <input type="checkbox" defaultChecked className="w-4 h-4" />
+                  <input
+                    type="checkbox"
+                    checked={notificationForm.orderUpdates}
+                    onChange={() => handleNotificationToggle("orderUpdates")}
+                    className="w-4 h-4"
+                  />
                   <div>
-                    <p className="font-medium text-sm">Thông báo đơn hàng</p>
+                    <p className="text-sm font-medium">Thông báo đơn hàng</p>
                     <p className="text-xs text-muted-foreground">
                       Nhận thông báo về trạng thái đơn hàng
                     </p>
@@ -334,9 +840,14 @@ export default function ProfilePage() {
                 </label>
 
                 <label className="flex items-center gap-3 p-3 border rounded cursor-pointer hover:bg-accent">
-                  <input type="checkbox" defaultChecked className="w-4 h-4" />
+                  <input
+                    type="checkbox"
+                    checked={notificationForm.promotions}
+                    onChange={() => handleNotificationToggle("promotions")}
+                    className="w-4 h-4"
+                  />
                   <div>
-                    <p className="font-medium text-sm">Khuyến mãi & Ưu đãi</p>
+                    <p className="text-sm font-medium">Khuyến mãi & Ưu đãi</p>
                     <p className="text-xs text-muted-foreground">
                       Nhận thông tin về các khuyến mãi mới
                     </p>
@@ -344,25 +855,59 @@ export default function ProfilePage() {
                 </label>
 
                 <label className="flex items-center gap-3 p-3 border rounded cursor-pointer hover:bg-accent">
-                  <input type="checkbox" className="w-4 h-4" />
+                  <input
+                    type="checkbox"
+                    checked={notificationForm.emailMarketing}
+                    onChange={() => handleNotificationToggle("emailMarketing")}
+                    className="w-4 h-4"
+                  />
                   <div>
-                    <p className="font-medium text-sm">Email tiếp thị</p>
+                    <p className="text-sm font-medium">Email tiếp thị</p>
                     <p className="text-xs text-muted-foreground">
                       Nhận email về các bản tin hàng tuần
                     </p>
                   </div>
                 </label>
+
+                <Button
+                  onClick={handleSaveNotificationSettings}
+                  disabled={savingNotifications}
+                >
+                  {savingNotifications
+                    ? "Đang lưu..."
+                    : "Lưu cài đặt thông báo"}
+                </Button>
               </CardContent>
             </Card>
 
-            {/* Đăng xuất */}
             <Card className="border-destructive">
               <CardHeader>
                 <CardTitle className="text-destructive">Đăng xuất</CardTitle>
                 <CardDescription>Đăng xuất khỏi tài khoản này</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="destructive">Đăng xuất</Button>
+                <Button
+                  variant="destructive"
+                  onClick={async () => {
+                    try {
+                      await api.post(
+                        "/auth/logout",
+                        {
+                          refreshToken:
+                            localStorage.getItem("customerRefreshToken") || "",
+                        },
+                        buildAuthConfig(),
+                      );
+                    } catch {
+                      // Clear local session even if logout endpoint fails.
+                    } finally {
+                      clearCustomerSession();
+                      toast.success("Đã đăng xuất");
+                    }
+                  }}
+                >
+                  Đăng xuất
+                </Button>
               </CardContent>
             </Card>
           </div>

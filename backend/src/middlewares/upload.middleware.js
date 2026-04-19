@@ -3,6 +3,13 @@ import path from "path";
 import multer from "multer";
 
 const uploadRoot = path.join(process.cwd(), "uploads", "menus");
+const ALLOWED_MIME_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+]);
+const ALLOWED_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif"]);
 
 if (!fs.existsSync(uploadRoot)) {
   fs.mkdirSync(uploadRoot, { recursive: true });
@@ -27,7 +34,11 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (_req, file, cb) => {
-  if (file.mimetype.startsWith("image/")) {
+  const extension = path.extname(file.originalname || "").toLowerCase();
+  const validMimeType = ALLOWED_MIME_TYPES.has(file.mimetype);
+  const validExtension = ALLOWED_EXTENSIONS.has(extension);
+
+  if (validMimeType && validExtension) {
     cb(null, true);
     return;
   }

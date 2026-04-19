@@ -1,6 +1,6 @@
 # AI Context - Restaurant Management
 
-Updated: 2026-04-12
+Updated: 2026-04-19
 Purpose: Provide a fast, reliable project brief for AI-assisted development in this repository.
 
 ## 1) Product Summary
@@ -34,6 +34,7 @@ Current implementation is functional in several areas but still partially scaffo
 - Multer for image upload
 - CORS + dotenv
 - Nodemon for development
+- Customer auth/session helpers with refresh-token persistence
 
 ### Frontend Stack
 
@@ -53,9 +54,12 @@ Current implementation is functional in several areas but still partially scaffo
 
 - `src/server.js`: app bootstrap, middleware, route mounting, payload/file error handling.
 - `src/configs/database.js`: DB connect helper.
-- `src/models/*`: domain models (table, menu, staff, customer, order).
+- `src/models/*`: domain models (table, menu, staff, customer, order, category, booking, address, auth-session).
 - `src/controllers/admin/*`: admin business logic.
+- `src/controllers/client/*`: customer-facing business logic.
 - `src/routes/admin/*`: admin route definitions + index aggregator.
+- `src/routes/client/*`: customer route definitions + index aggregator.
+- `src/routes/auth.route.js`: login/logout/refresh/me endpoints.
 - `src/middlewares/upload.middleware.js`: menu image upload pipeline.
 - `uploads/menus`: static image storage served via `/uploads`.
 
@@ -67,6 +71,7 @@ Current implementation is functional in several areas but still partially scaffo
 - `src/shared/components/ui/*`: reusable UI primitives.
 - `src/shared/components/layout/*`: reusable layout components.
 - `src/services/api/client.js`: shared API client.
+- `src/services/customer-session.js`: customer token/profile cache helper.
 - `src/shared/utils/index.js`: shared utilities.
 - `src/shared/styles/index.css`: global styles.
 
@@ -96,10 +101,7 @@ Current implementation is functional in several areas but still partially scaffo
 
 - Includes embedded customer snapshot + item lines + payment/status.
 - Virtual `totalAmount` computed from item list.
-
-Important inconsistency:
-
-- Most backend files use ES modules, but `order.model.js` currently uses CommonJS (`require/module.exports`). This should be normalized.
+- Backend models are now aligned on ES modules, including `order.model.js`.
 
 ---
 
@@ -117,9 +119,9 @@ Important inconsistency:
 
 ### Customer Route Layer
 
-- `backend/src/routes/client` currently empty.
-- `backend/src/controllers/client` currently empty.
-- Customer frontend pages exist, but backend client API layer is not yet implemented.
+- `backend/src/routes/client` is implemented and mounted from `server.js`.
+- `backend/src/controllers/client` is implemented for dashboard, tables, bookings, categories, menus, orders, profile, and addresses.
+- `backend/src/routes/auth.route.js` provides login/logout/refresh/me endpoints for the customer session flow.
 
 ---
 
@@ -130,6 +132,7 @@ Important inconsistency:
 - Table management has CRUD endpoints and frontend integration.
 - Menu list/create and image upload path exist.
 - Orders list endpoint exists; invoice UI is relatively advanced.
+- Customer dashboard, booking, menu, order history, profile, and address screens are API-backed.
 
 ### Stub/Incomplete Backend Areas
 
@@ -137,12 +140,14 @@ Important inconsistency:
 - `statistic.controller.js` returns empty array.
 - `staff.controller.js` currently only includes list operation.
 - Customer CRUD backend is incomplete.
+- Admin auth/authorization is still not fully hardened.
 
 ### Frontend Integration Gaps
 
-- Analytics page currently based on mock dataset.
-- Customer booking page currently uses in-memory table data.
-- Some pages mix local state mutation and API state.
+- Analytics page is still based on mock dataset.
+- Admin table page still needs a fetch-loop fix.
+- Some admin pages still mix local state mutation and API state.
+- Customer pages now use real API data and token-backed auth.
 
 Known bug pattern to fix early:
 
@@ -162,6 +167,7 @@ Quality note:
 - Image upload limit: `5MB`.
 - Only image MIME types are accepted for menu uploads.
 - Upload path is static served from `/uploads`.
+- Customer auth uses bearer access tokens plus refresh-token session storage.
 
 ### Language Conventions
 
@@ -183,9 +189,9 @@ When asked to implement features, prioritize in this order:
 
 1. Standardize environment/config and API response contracts.
 2. Complete missing critical admin backend CRUD/aggregations (staff, dashboard, statistics).
-3. Create customer backend route/controller layer.
-4. Replace frontend mock data with real API integration.
-5. Add authentication/authorization and test foundation.
+3. Harden authentication/authorization across admin and customer flows.
+4. Complete remaining admin backend CRUD/aggregations (staff, dashboard, statistics).
+5. Add test foundation and performance checks.
 
 Backlog source of truth is `docs/tasks.md`.
 
@@ -200,6 +206,7 @@ When generating code:
 - Keep response/error shapes consistent once standardized.
 - Ensure frontend changes include loading/empty/error states.
 - Avoid introducing new patterns if existing conventions already cover the need.
+- Keep customer auth/session helpers aligned with the `/auth` and `/client` backend contracts.
 
 Structure expectation for new frontend code:
 

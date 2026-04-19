@@ -16,7 +16,7 @@ Enable staff/admin to manage restaurant tables including create, update, delete,
 
 ## Current Implementation Status
 
-- Status: Partially implemented and API-backed.
+- Status: API-backed CRUD is implemented, with a couple of UI polish issues remaining.
 - Backend CRUD exists in `table.controller.js`.
 - Frontend UI includes search, filtering, paging, add/edit drawer, and delete actions.
 
@@ -29,7 +29,7 @@ Enable staff/admin to manage restaurant tables including create, update, delete,
 
 ## Gaps / Risks
 
-- Data fetching effect depends on `tables`, causing repeated re-fetch loops.
+- Data fetching effect still depends on `tables`, causing repeated re-fetch loops.
 - Validation is mostly frontend-side; backend validation can be stricter.
 - API response shape is inconsistent with other modules.
 

@@ -8,33 +8,32 @@ Allow customers to browse available tables by area/floor and place reservations 
 
 - Customer route: `/customer/book-table`
 - Frontend page: `frontend/src/features/customer-booking/pages/book-table-page.jsx`
-- Expected backend APIs (not yet implemented):
+- Backend APIs:
   - `GET /client/tables` (availability)
   - `POST /client/bookings` (reservation create)
 
 ## Current Implementation Status
 
-- Status: UI complete but mock/local-state driven.
-- No customer backend route/controller currently exists.
+- Status: API-backed and connected to the customer backend.
+- Customer backend route/controller layer exists and enforces auth on booking actions.
 
 ## Behavior Implemented
 
 - Floor tabs and table grid visualization.
 - Reservation dialog with validation (date/time/guest count).
-- Local status transition from available -> reserved after booking.
+- Booking creates a persistent reservation and refreshes table state from API responses.
 
 ## Gaps / Risks
 
-- Reservation data not persisted.
-- Concurrency conflicts cannot be handled (two users booking same table).
-- No server-side business rules for booking windows/capacity checks.
+- Conflict handling still depends on backend error responses being surfaced clearly in the UI.
+- Booking windows/capacity checks should stay enforced server-side.
+- Table availability should remain consistent after refresh and across sessions.
 
 ## Recommended Milestones
 
-1. Build client table availability and booking APIs.
-2. Replace local table source with API data.
-3. Add conflict responses and optimistic UI rollback.
-4. Persist booking history linked to customer identity.
+1. Tighten conflict/error messaging for booking failures.
+2. Keep availability data fresh after booking mutations.
+3. Add any missing capacity/window validation rules if product policy changes.
 
 ## Acceptance Criteria (Target)
 

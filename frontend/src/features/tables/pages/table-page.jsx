@@ -72,23 +72,29 @@ const Table = () => {
   const [activeTableId, setActiveTableId] = useState(null);
   const [tableForm, setTableForm] = useState(EMPTY_FORM);
   const [formError, setFormError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const fetchTables = async () => {
+  const fetchTables = useCallback(async () => {
     try {
+      setIsLoading(true);
       const res = await api.get("/admin/tables");
       setTables(
-        Array.isArray(res.data) ? res.data.map(normalizeTableRecord) : [],
+        Array.isArray(res.data?.tables)
+          ? res.data.tables.map(normalizeTableRecord)
+          : [],
       );
     } catch (error) {
-      console.error("Lỗi xảy ra khi truy xuất tables: ", error);
       toast.error("Lỗi xảy ra khi truy xuất tables");
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, []);
+
   useEffect(() => {
     fetchTables();
-  }, [tables]);
+  }, [fetchTables]);
 
   const filteredTables = useMemo(() => {
     const normalizedQuery = tableNumberQuery.trim().toLowerCase();
@@ -233,7 +239,7 @@ const Table = () => {
 
         // Gọi API thêm bàn mới, backend nhận: tableNumber, area, capacity, status.
         const response = await api.post("/admin/tables", result.payload);
-        const createdTable = normalizeTableRecord(response.data);
+        const createdTable = normalizeTableRecord(response.data?.table);
 
         setTables((previousTables) => [createdTable, ...previousTables]);
         setCurrentPage(1);
@@ -241,7 +247,6 @@ const Table = () => {
         resetFormState();
         toast.success("Thêm bàn mới thành công");
       } catch (error) {
-        console.error("Lỗi khi thêm bàn: ", error);
         const apiMessage =
           error?.response?.data?.message ||
           "Không thể thêm bàn. Vui lòng thử lại.";
@@ -263,8 +268,8 @@ const Table = () => {
           result.payload,
         );
 
-        const updatedFromApi = response?.data
-          ? normalizeTableRecord(response.data)
+        const updatedFromApi = response?.data?.table
+          ? normalizeTableRecord(response.data.table)
           : null;
 
         setTables((previousTables) =>
@@ -286,7 +291,6 @@ const Table = () => {
         resetFormState();
         toast.success("Cập nhật bàn thành công");
       } catch (error) {
-        console.error("Lỗi khi cập nhật bàn: ", error);
         const apiMessage =
           error?.response?.data?.message ||
           "Không thể cập nhật bàn. Vui lòng thử lại.";
@@ -326,7 +330,6 @@ const Table = () => {
 
         toast.success("Xoá bàn thành công");
       } catch (error) {
-        console.error("Lỗi khi xoá bàn: ", error);
         const apiMessage =
           error?.response?.data?.message ||
           "Không thể xoá bàn. Vui lòng thử lại.";
@@ -388,7 +391,6 @@ const Table = () => {
         );
       }
     } catch (error) {
-      console.error("Lỗi khi xoá nhiều bàn: ", error);
       toast.error("Không thể xoá các bàn đã chọn. Vui lòng thử lại.");
     } finally {
       setIsDeleting(false);
@@ -444,17 +446,58 @@ const Table = () => {
     [paginatedTableIds],
   );
 
-  const handleStatusUpdate = useCallback((tableId, nextStatus) => {
-    setTables((previousTables) =>
-      previousTables.map((table) => {
-        if (table.id !== tableId) {
-          return table;
+  const handleStatusUpdate = useCallback(
+    async (tableId, nextStatus) => {
+      const targetTable = tables.find((table) => table.id === tableId);
+
+      if (!targetTable || targetTable.status === nextStatus) {
+        return;
+      }
+
+      setTables((previousTables) =>
+        previousTables.map((table) =>
+          table.id === tableId ? { ...table, status: nextStatus } : table,
+        ),
+      );
+
+      try {
+        const response = await api.put(`/admin/tables/${tableId}`, {
+          tableNumber: targetTable.tableNumber,
+          area: targetTable.area,
+          capacity: targetTable.capacity,
+          status: nextStatus,
+        });
+
+        const updatedFromApi = response?.data?.table
+          ? normalizeTableRecord(response.data.table)
+          : null;
+
+        if (updatedFromApi) {
+          setTables((previousTables) =>
+            previousTables.map((table) =>
+              table.id === tableId ? updatedFromApi : table,
+            ),
+          );
         }
 
-        return { ...table, status: nextStatus };
-      }),
-    );
-  }, []);
+        toast.success("Cập nhật trạng thái bàn thành công");
+      } catch (error) {
+        setTables((previousTables) =>
+          previousTables.map((table) =>
+            table.id === tableId
+              ? { ...table, status: targetTable.status }
+              : table,
+          ),
+        );
+
+        const apiMessage =
+          error?.response?.data?.message ||
+          "Không thể cập nhật trạng thái bàn. Vui lòng thử lại.";
+        toast.error(apiMessage);
+      }
+    },
+    [tables],
+  );
 
   const from =
     filteredTables.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
@@ -512,7 +555,7 @@ const Table = () => {
           </div>
 
           <TableList
-            paginatedTables={paginatedTables}
+            paginatedTables={isLoading ? [] : paginatedTables}
             selectedTableIds={selectedTableIds}
             selectedCount={selectedTableIds.length}
             isDeleting={isDeleting}
@@ -525,6 +568,12 @@ const Table = () => {
             onDelete={handleDeleteTable}
             onBulkDelete={handleBulkDelete}
           />
+
+          {isLoading ? (
+            <p className="text-sm text-muted-foreground">
+              Đang tải danh sách bàn...
+            </p>
+          ) : null}
 
           <div className="flex flex-col gap-2 text-sm md:flex-row md:items-center md:justify-between">
             <p className="text-muted-foreground">

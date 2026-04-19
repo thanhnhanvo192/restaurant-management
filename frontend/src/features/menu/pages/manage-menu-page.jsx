@@ -12,7 +12,11 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/shared/components/ui/avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -322,7 +326,6 @@ const ManageMenuPage = () => {
         setCurrentPage(1);
         toast.success("Đã thêm món mới");
       } catch (error) {
-        console.error("Lỗi khi thêm món mới: ", error);
         const apiMessage =
           error?.response?.data?.message ||
           "Không thể thêm món mới. Vui lòng thử lại.";

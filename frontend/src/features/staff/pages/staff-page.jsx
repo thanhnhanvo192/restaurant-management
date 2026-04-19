@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Lock,
@@ -9,12 +9,18 @@ import {
   Search,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import {
   Dialog,
   DialogClose,
@@ -72,7 +78,7 @@ const staffSchema = z.object({
     .trim()
     .min(1, "Email là bắt buộc")
     .email("Email không hợp lệ"),
-  phone: z.string().trim().optional(),
+  phone: z.string().trim().min(1, "Số điện thoại là bắt buộc"),
   role: z.enum(["admin", "waiter", "kitchen"]),
   password: z.string().optional(),
 });
@@ -111,26 +117,47 @@ const getInitials = (fullName) => {
     .join("");
 };
 
+const getErrorMessage = (error, fallbackMessage) => {
+  const responseData = error?.response?.data;
+  const detailMessage = Array.isArray(responseData?.error?.details)
+    ? responseData.error.details[0]?.message
+    : null;
+
+  return detailMessage || responseData?.message || fallbackMessage;
+};
+
 const Staff = () => {
   const [staffs, setStaffs] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingStaffId, setEditingStaffId] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [mutatingStaffId, setMutatingStaffId] = useState(null);
 
-  const fetchStaffs = async () => {
+  const fetchStaffs = useCallback(async () => {
     try {
-      const res = await api.get("/admin/staffs");
-      setStaffs(res.data.staffs);
-      console.log(staffs); // Debug log
+      setIsLoading(true);
+      const response = await api.get("/admin/staffs", {
+        params: {
+          page: 1,
+          limit: 100,
+        },
+      });
+      setStaffs(
+        Array.isArray(response.data?.staffs) ? response.data.staffs : [],
+      );
     } catch (error) {
-      console.error("Lỗi xảy ra khi truy xuất staffs: ", error);
+      toast.error(getErrorMessage(error, "Lỗi xảy ra khi truy xuất nhân viên"));
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchStaffs();
-  }, []);
+  }, [fetchStaffs]);
 
   const form = useForm({
     resolver: zodResolver(staffSchema),
@@ -186,7 +213,7 @@ const Staff = () => {
     setIsDialogOpen(true);
   };
 
-  const onSubmit = (values) => {
+  const onSubmit = async (values) => {
     // Khi thêm mới, yêu cầu mật khẩu khởi tạo để tạo tài khoản nhân viên.
     if (
       !isEditMode &&
@@ -199,54 +226,139 @@ const Staff = () => {
       return;
     }
 
-    if (isEditMode) {
-      setStaffs((prevStaffs) =>
-        prevStaffs.map((staff) =>
-          staff.id === editingStaffId
-            ? {
-                ...staff,
-                fullName: values.fullName.trim(),
-                email: values.email.trim(),
-                phone: values.phone?.trim() ?? "",
-                role: values.role,
-              }
-            : staff,
-        ),
-      );
+    const payload = {
+      fullName: values.fullName.trim(),
+      email: values.email.trim(),
+      phone: values.phone.trim(),
+      role: values.role,
+    };
+
+    if (!isEditMode) {
+      payload.password = values.password.trim();
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      if (isEditMode) {
+        const response = await api.put(
+          `/admin/staffs/${editingStaffId}`,
+          payload,
+        );
+        const updatedStaff = response.data?.staff;
+
+        setStaffs((previousStaffs) =>
+          previousStaffs.map((staff) =>
+            staff.id === editingStaffId ? updatedStaff || staff : staff,
+          ),
+        );
+
+        toast.success("Cập nhật nhân viên thành công");
+      } else {
+        const response = await api.post("/admin/staffs", payload);
+        const createdStaff = response.data?.staff;
+
+        setStaffs((previousStaffs) =>
+          createdStaff ? [createdStaff, ...previousStaffs] : previousStaffs,
+        );
+        setCurrentPage(1);
+        toast.success("Thêm nhân viên thành công");
+      }
+
       closeDialog();
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Không thể lưu thông tin nhân viên"));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const toggleStaffStatus = async (staffId) => {
+    const targetStaff = staffs.find((staff) => staff.id === staffId);
+
+    if (!targetStaff) {
       return;
     }
 
-    const newStaff = {
-      id: Date.now(),
-      fullName: values.fullName.trim(),
-      email: values.email.trim(),
-      phone: values.phone?.trim() ?? "",
-      role: values.role,
-      startDate: new Date().toISOString(),
-      active: true,
-    };
+    try {
+      setMutatingStaffId(staffId);
 
-    setStaffs((prevStaffs) => [newStaff, ...prevStaffs]);
-    setCurrentPage(1);
-    closeDialog();
+      const response = await api.put(`/admin/staffs/${staffId}`, {
+        active: !targetStaff.active,
+      });
+      const updatedStaff = response.data?.staff;
+
+      setStaffs((previousStaffs) =>
+        previousStaffs.map((staff) =>
+          staff.id === staffId ? updatedStaff || staff : staff,
+        ),
+      );
+
+      toast.success(
+        targetStaff.active ? "Đã khóa tài khoản" : "Đã mở khóa tài khoản",
+      );
+    } catch (error) {
+      toast.error(
+        getErrorMessage(error, "Không thể cập nhật trạng thái tài khoản"),
+      );
+    } finally {
+      setMutatingStaffId(null);
+    }
   };
 
-  const toggleStaffStatus = (staffId) => {
-    setStaffs((prevStaffs) =>
-      prevStaffs.map((staff) =>
-        staff.id === staffId ? { ...staff, active: !staff.active } : staff,
-      ),
-    );
+  const updateStaffRole = async (staffId, nextRole) => {
+    const targetStaff = staffs.find((staff) => staff.id === staffId);
+
+    if (!targetStaff || targetStaff.role === nextRole) {
+      return;
+    }
+
+    try {
+      setMutatingStaffId(staffId);
+
+      const response = await api.put(`/admin/staffs/${staffId}`, {
+        role: nextRole,
+      });
+      const updatedStaff = response.data?.staff;
+
+      setStaffs((previousStaffs) =>
+        previousStaffs.map((staff) =>
+          staff.id === staffId ? updatedStaff || staff : staff,
+        ),
+      );
+
+      toast.success("Cập nhật vai trò thành công");
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Không thể cập nhật vai trò"));
+    } finally {
+      setMutatingStaffId(null);
+    }
   };
 
-  const updateStaffRole = (staffId, nextRole) => {
-    // Cập nhật vai trò ngay trên bảng để admin thao tác nhanh.
-    setStaffs((prevStaffs) =>
-      prevStaffs.map((staff) =>
-        staff.id === staffId ? { ...staff, role: nextRole } : staff,
-      ),
-    );
+  const deleteStaff = async (staffId) => {
+    if (!staffId) {
+      return;
+    }
+
+    const shouldDelete = window.confirm("Bạn có chắc muốn xóa nhân viên này?");
+    if (!shouldDelete) {
+      return;
+    }
+
+    try {
+      setMutatingStaffId(staffId);
+      await api.delete(`/admin/staffs/${staffId}`);
+
+      setStaffs((previousStaffs) =>
+        previousStaffs.filter((staff) => staff.id !== staffId),
+      );
+
+      toast.success("Xóa nhân viên thành công");
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Không thể xóa nhân viên"));
+    } finally {
+      setMutatingStaffId(null);
+    }
   };
 
   const renderPaginationItems = () => {
@@ -318,7 +430,16 @@ const Staff = () => {
             </TableHeader>
 
             <TableBody>
-              {paginatedStaffs.length === 0 ? (
+              {isLoading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    className="py-8 text-center text-muted-foreground"
+                  >
+                    Đang tải dữ liệu nhân viên...
+                  </TableCell>
+                </TableRow>
+              ) : paginatedStaffs.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={6}
@@ -354,6 +475,7 @@ const Staff = () => {
                         onValueChange={(value) =>
                           updateStaffRole(staff.id, value)
                         }
+                        disabled={mutatingStaffId === staff.id}
                       >
                         <SelectTrigger
                           className={`w-32.5 border-0 font-medium ${roleBadgeClassMap[staff.role]}`}
@@ -407,6 +529,7 @@ const Staff = () => {
                             <DropdownMenuItem
                               onClick={() => toggleStaffStatus(staff.id)}
                               className="cursor-pointer"
+                              disabled={mutatingStaffId === staff.id}
                             >
                               {staff.active ? (
                                 <>
@@ -419,6 +542,13 @@ const Staff = () => {
                                   Mở khóa
                                 </>
                               )}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => deleteStaff(staff.id)}
+                              className="cursor-pointer text-destructive focus:text-destructive"
+                              disabled={mutatingStaffId === staff.id}
+                            >
+                              Xóa nhân viên
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -570,7 +700,9 @@ const Staff = () => {
                   Hủy
                 </Button>
               </DialogClose>
-              <Button type="submit">Lưu</Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Đang lưu..." : "Lưu"}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

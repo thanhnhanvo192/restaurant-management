@@ -1,91 +1,79 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
 import { toast } from "sonner";
 import { Minus, Plus, Search, ShoppingCart, Sparkles } from "lucide-react";
+import api from "@/services/api/client";
+import { getCustomerAuthHeaders } from "@/services/customer-session";
 
-const MENU_CATEGORIES = [
-  "Tất cả",
-  "Khai vị",
-  "Món chính",
-  "Đồ uống",
-  "Tráng miệng",
-];
-
-const MENU_ITEMS = [
-  {
-    id: 1,
-    name: "Gỏi cuốn tôm thịt",
-    category: "Khai vị",
-    price: 45000,
-    image:
-      "https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&w=900&q=80",
-    description: "Tươi, mát và nhẹ bụng cho bữa ăn mở đầu thật đẹp.",
-  },
-  {
-    id: 2,
-    name: "Cơm tấm sườn non",
-    category: "Món chính",
-    price: 65000,
-    image:
-      "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=900&q=80",
-    description: "Sườn nướng thơm lừng, ăn kèm nước mắm đậm vị.",
-  },
-  {
-    id: 3,
-    name: "Phở bò Hà Nội",
-    category: "Món chính",
-    price: 55000,
-    image:
-      "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=900&q=80",
-    description: "Nước dùng thanh, bánh phở mềm, thịt bò nóng hổi.",
-  },
-  {
-    id: 4,
-    name: "Trà chanh sả",
-    category: "Đồ uống",
-    price: 25000,
-    image:
-      "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=900&q=80",
-    description: "Mát lạnh, thơm sả, cân bằng hoàn hảo với món mặn.",
-  },
-  {
-    id: 5,
-    name: "Bánh flan caramel",
-    category: "Tráng miệng",
-    price: 35000,
-    image:
-      "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=900&q=80",
-    description: "Mềm mịn, ngọt dịu và kết thúc bữa ăn rất trọn vẹn.",
-  },
-  {
-    id: 6,
-    name: "Gà nướng mật ong",
-    category: "Món chính",
-    price: 79000,
-    image:
-      "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=900&q=80",
-    description: "Da giòn, thịt mềm, vị mật ong nhẹ rất dễ ăn.",
-  },
-];
+const MENU_CATEGORIES = [{ id: "all", name: "Tất cả" }];
 
 export default function MenuPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("Tất cả");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [cartItems, setCartItems] = useState([]);
+  const [menuItems, setMenuItems] = useState([]);
+  const [categories, setCategories] = useState(MENU_CATEGORIES);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const loadMenus = async () => {
+      try {
+        const [menusResponse, categoriesResponse] = await Promise.all([
+          api.get("/client/menus"),
+          api.get("/client/categories"),
+        ]);
+
+        const nextCategories = [
+          { id: "all", name: "Tất cả" },
+          ...(categoriesResponse.data?.categories || []).map((category) => ({
+            id: category.id || category.slug,
+            name: category.name,
+          })),
+        ];
+
+        setCategories(nextCategories);
+        setMenuItems(
+          (menusResponse.data?.menus || []).map((menu) => ({
+            id: menu.id,
+            menuId: menu.id,
+            name: menu.name,
+            categoryId: menu.categoryId,
+            categoryName: menu.category || menu.categoryId,
+            price: menu.price,
+            image: menu.imageUrl || menu.image,
+            description: menu.description,
+            available: menu.available,
+          })),
+        );
+      } catch (error) {
+        toast.error(error?.response?.data?.message || "Không thể tải thực đơn");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadMenus();
+  }, []);
 
   const filteredItems = useMemo(() => {
-    return MENU_ITEMS.filter((item) => {
+    return menuItems.filter((item) => {
       const matchSearch = item.name
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
       const matchCategory =
-        categoryFilter === "Tất cả" || item.category === categoryFilter;
+        categoryFilter === "all" || item.categoryId === categoryFilter;
       return matchSearch && matchCategory;
     });
-  }, [searchTerm, categoryFilter]);
+  }, [searchTerm, categoryFilter, menuItems]);
 
   const cartTotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -121,6 +109,47 @@ export default function MenuPage() {
         item.id === itemId ? { ...item, quantity } : item,
       ),
     );
+  };
+
+  const handleCheckout = async () => {
+    if (!getCustomerAuthHeaders().Authorization) {
+      toast.error("Vui lòng đăng nhập để đặt món");
+      return;
+    }
+
+    if (cartItems.length === 0) {
+      toast.error("Giỏ hàng đang trống");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      const response = await api.post(
+        "/client/orders",
+        {
+          items: cartItems.map((item) => ({
+            menuId: item.menuId || item.id,
+            name: item.name,
+            quantity: item.quantity,
+            unitPrice: item.price,
+            imageUrl: item.image,
+            categoryId: item.category,
+          })),
+          paymentMethod: "cash",
+          note: "",
+        },
+        {
+          headers: getCustomerAuthHeaders(),
+        },
+      );
+
+      toast.success(response.data?.message || "Đặt món thành công");
+      setCartItems([]);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Không thể tạo đơn hàng");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -171,19 +200,19 @@ export default function MenuPage() {
           </div>
 
           <div className="flex gap-2 overflow-x-auto pb-1 md:justify-end">
-            {MENU_CATEGORIES.map((category) => (
+            {categories.map((category) => (
               <button
-                key={category}
+                key={category.id}
                 type="button"
-                onClick={() => setCategoryFilter(category)}
+                onClick={() => setCategoryFilter(category.id)}
                 className={[
                   "whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-all",
-                  categoryFilter === category
+                  categoryFilter === category.id
                     ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20"
                     : "border border-orange-100 bg-white text-muted-foreground hover:bg-orange-50 hover:text-orange-600",
                 ].join(" ")}
               >
-                {category}
+                {category.name}
               </button>
             ))}
           </div>
@@ -192,57 +221,64 @@ export default function MenuPage() {
 
       <div className="grid gap-6 xl:grid-cols-[1.4fr_0.6fr]">
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-2">
-          {filteredItems.map((item) => (
-            <Card
-              key={item.id}
-              className="group overflow-hidden border-orange-100 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-orange-100"
-            >
-              <div className="relative h-52 overflow-hidden">
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-black/40 via-black/0 to-black/0" />
-                <Badge className="absolute left-3 top-3 bg-white/90 text-orange-700 hover:bg-white">
-                  {item.category}
-                </Badge>
-              </div>
-
-              <CardContent className="space-y-3 p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="text-lg font-semibold text-foreground">
-                      {item.name}
-                    </h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {item.description}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl bg-orange-50 px-3 py-2 text-right">
-                    <p className="text-xs text-muted-foreground">Giá</p>
-                    <p className="text-lg font-bold text-orange-600">
-                      {(item.price / 1000).toFixed(0)}k
-                    </p>
-                  </div>
+          {loading ? (
+            <div className="rounded-2xl border border-dashed p-6 text-center text-sm text-muted-foreground sm:col-span-2">
+              Đang tải thực đơn...
+            </div>
+          ) : (
+            filteredItems.map((item) => (
+              <Card
+                key={item.id}
+                className="group overflow-hidden border-orange-100 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-orange-100"
+              >
+                <div className="relative h-52 overflow-hidden">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/40 via-black/0 to-black/0" />
+                  <Badge className="absolute left-3 top-3 bg-white/90 text-orange-700 hover:bg-white">
+                    {item.categoryName}
+                  </Badge>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-                    Món đang hot
+                <CardContent className="space-y-3 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className="text-lg font-semibold text-foreground">
+                        {item.name}
+                      </h3>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {item.description}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl bg-orange-50 px-3 py-2 text-right">
+                      <p className="text-xs text-muted-foreground">Giá</p>
+                      <p className="text-lg font-bold text-orange-600">
+                        {(item.price / 1000).toFixed(0)}k
+                      </p>
+                    </div>
                   </div>
-                  <Button
-                    onClick={() => handleAddToCart(item)}
-                    className="rounded-full bg-orange-500 px-4 text-white hover:bg-orange-600"
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Thêm nhanh
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                      Món đang hot
+                    </div>
+                    <Button
+                      onClick={() => handleAddToCart(item)}
+                      disabled={!item.available}
+                      className="rounded-full bg-orange-500 px-4 text-white hover:bg-orange-600"
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      {item.available ? "Thêm nhanh" : "Hết món"}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
 
         <Card className="h-fit border-orange-100 bg-white shadow-sm lg:sticky lg:top-24">
@@ -322,7 +358,11 @@ export default function MenuPage() {
                     <span>Tổng</span>
                     <span>{(cartTotal / 1000).toFixed(0)}k ₫</span>
                   </div>
-                  <Button className="mt-4 w-full rounded-full bg-white text-orange-600 hover:bg-orange-50">
+                  <Button
+                    className="mt-4 w-full rounded-full bg-white text-orange-600 hover:bg-orange-50"
+                    onClick={handleCheckout}
+                    disabled={submitting}
+                  >
                     Tiến hành đặt món
                   </Button>
                 </div>

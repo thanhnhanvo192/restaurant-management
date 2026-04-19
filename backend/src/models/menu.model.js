@@ -38,6 +38,11 @@ const menuSchema = new mongoose.Schema(
   },
 );
 
+menuSchema.index({ categoryId: 1, available: 1 });
+menuSchema.index({ available: 1, createdAt: -1 });
+menuSchema.index({ name: 1 });
+menuSchema.index({ createdAt: -1 });
+
 const Menu = mongoose.model("Menu", menuSchema);
 
 export default Menu;

@@ -1,53 +1,137 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-const Schema = mongoose.Schema;
-
-// Schema chi tiết cho các món ăn trong đơn hàng
-const OrderItemSchema = new Schema(
+const orderItemSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },
-    quantity: { type: Number, required: true, min: 1 },
-    unitPrice: { type: Number, required: true, min: 0 },
-  },
-  { _id: false },
-); // Không tạo _id riêng cho từng item trong mảng
-
-// Schema chi tiết cho khách hàng
-const CustomerSchema = new Schema(
-  {
-    ten: { type: String, required: true, trim: true },
-    sdt: { type: String, required: true },
-    email: { type: String, lowercase: true, trim: true },
-  },
-  { _id: false },
-);
-
-// Schema chính cho Đơn hàng (Order)
-const OrderSchema = new Schema(
-  {
-    tableLabel: {
+    menuId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Menu",
+    },
+    name: {
       type: String,
       required: true,
       trim: true,
     },
+    quantity: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+    unitPrice: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    imageUrl: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    categoryId: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+  },
+  { _id: false },
+);
+
+const customerSnapshotSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    phone: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    email: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      default: "",
+    },
+  },
+  { _id: false },
+);
+
+const orderSchema = new mongoose.Schema(
+  {
+    orderCode: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
+      trim: true,
+    },
+    customerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Customer",
+      required: true,
+      index: true,
+    },
+    customerSnapshot: {
+      type: customerSnapshotSchema,
+      required: true,
+    },
+    tableId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Table",
+    },
+    tableSnapshot: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
     paymentMethod: {
       type: String,
       enum: ["cash", "card", "transfer"],
-      required: true,
+      default: "cash",
     },
     status: {
       type: String,
-      enum: ["success", "canceled", "pending"],
+      enum: ["pending", "confirmed", "preparing", "completed", "canceled"],
       default: "pending",
+      index: true,
     },
-    customer: {
-      type: CustomerSchema,
+    items: {
+      type: [orderItemSchema],
+      default: [],
+      validate: {
+        validator: (items) => Array.isArray(items) && items.length > 0,
+        message: "Order must contain at least one item",
+      },
+    },
+    subtotal: {
+      type: Number,
       required: true,
+      min: 0,
     },
-    items: [OrderItemSchema],
-    createdAt: {
-      type: Date,
-      default: Date.now,
+    taxAmount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    totalAmount: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    note: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    rating: {
+      type: Number,
+      min: 1,
+      max: 5,
+    },
+    reviewComment: {
+      type: String,
+      trim: true,
+      default: "",
     },
   },
   {
@@ -57,14 +141,12 @@ const OrderSchema = new Schema(
   },
 );
 
-// Virtual để tính tổng tiền đơn hàng (nếu cần)
-OrderSchema.virtual("totalAmount").get(function () {
-  return this.items.reduce(
-    (total, item) => total + item.quantity * item.unitPrice,
-    0,
-  );
-});
+orderSchema.index({ customerId: 1, createdAt: -1 });
+orderSchema.index({ status: 1, createdAt: -1 });
+orderSchema.index({ paymentMethod: 1, createdAt: -1 });
+orderSchema.index({ createdAt: -1 });
+orderSchema.index({ "customerSnapshot.phone": 1 });
 
-const Order = mongoose.model("Order", OrderSchema);
+const Order = mongoose.model("Order", orderSchema);
 
-module.exports = Order;
+export default Order;

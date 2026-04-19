@@ -1,8 +1,13 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -23,24 +28,8 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { CalendarDays, Clock3, Users, UtensilsCrossed } from "lucide-react";
-
-const INITIAL_TABLES = [
-  { id: "B01", floor: "ground", seats: 2, status: "available" },
-  { id: "B02", floor: "ground", seats: 4, status: "reserved" },
-  { id: "B03", floor: "ground", seats: 6, status: "serving" },
-  { id: "B04", floor: "ground", seats: 4, status: "available" },
-  { id: "B05", floor: "ground", seats: 2, status: "available" },
-  { id: "B06", floor: "floor1", seats: 4, status: "available" },
-  { id: "B07", floor: "floor1", seats: 6, status: "reserved" },
-  { id: "B08", floor: "floor1", seats: 8, status: "available" },
-  { id: "B09", floor: "floor1", seats: 2, status: "serving" },
-  { id: "B10", floor: "floor1", seats: 4, status: "available" },
-  { id: "B11", floor: "vip", seats: 6, status: "available" },
-  { id: "B12", floor: "vip", seats: 10, status: "reserved" },
-  { id: "B13", floor: "vip", seats: 8, status: "available" },
-  { id: "B14", floor: "vip", seats: 12, status: "serving" },
-  { id: "B15", floor: "vip", seats: 6, status: "available" },
-];
+import api from "@/services/api/client";
+import { getCustomerAuthHeaders } from "@/services/customer-session";
 
 const TIME_OPTIONS = [
   "18:00",
@@ -73,11 +62,19 @@ const statusMap = {
   },
 };
 
+const fallbackStatus = {
+  label: "Không khả dụng",
+  cardClass: "border-2 border-amber-300 bg-amber-50",
+  badgeClass: "bg-amber-100 text-amber-700",
+};
+
 export default function BookTablePage() {
-  const [tables, setTables] = useState(INITIAL_TABLES);
+  const [tables, setTables] = useState([]);
   const [activeFloor, setActiveFloor] = useState("all");
   const [selectedTableId, setSelectedTableId] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   // Form state trong dialog đặt bàn
   const [bookingDate, setBookingDate] = useState("");
@@ -108,9 +105,36 @@ export default function BookTablePage() {
     [tables],
   );
 
+  useEffect(() => {
+    const loadTables = async () => {
+      try {
+        const response = await api.get("/client/tables");
+        const data = response.data?.tables || [];
+        setTables(data);
+      } catch (error) {
+        toast.error(
+          error?.response?.data?.message || "Không thể tải danh sách bàn",
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTables();
+  }, []);
+
   const openBookingDialog = (tableId) => {
     setSelectedTableId(tableId);
     setIsDialogOpen(true);
+  };
+
+  const handleTableSelect = (table) => {
+    if (table.status !== "available") {
+      toast.error("Bàn này hiện không thể đặt, vui lòng chọn bàn khác.");
+      return;
+    }
+
+    openBookingDialog(table.id);
   };
 
   const resetBookingForm = () => {
@@ -153,29 +177,78 @@ export default function BookTablePage() {
       return;
     }
 
-    // Demo logic: sau khi xác nhận thì chuyển trạng thái bàn sang Đã đặt trước
-    setTables((prev) =>
-      prev.map((table) =>
-        table.id === selectedTable.id
-          ? { ...table, status: "reserved" }
-          : table,
-      ),
-    );
+    const submitBooking = async () => {
+      try {
+        setSubmitting(true);
+        const response = await api.post(
+          "/client/bookings",
+          {
+            tableId: selectedTable.id,
+            bookingDate,
+            bookingTime,
+            guestCount,
+            specialNote,
+          },
+          {
+            headers: getCustomerAuthHeaders(),
+          },
+        );
 
-    toast.success(`Đặt thành công bàn ${selectedTable.id} lúc ${bookingTime}`);
-    closeDialog();
+        toast.success(
+          response.data?.message ||
+            `Đặt thành công bàn ${selectedTable.tableNumber}`,
+        );
+        setTables((prev) =>
+          prev.map((table) =>
+            table.id === selectedTable.id
+              ? { ...table, status: "reserved", isAvailable: false }
+              : table,
+          ),
+        );
+        closeDialog();
+      } catch (error) {
+        toast.error(error?.response?.data?.message || "Không thể đặt bàn");
+      } finally {
+        setSubmitting(false);
+      }
+    };
+
+    if (!getCustomerAuthHeaders().Authorization) {
+      toast.error("Vui lòng đăng nhập để đặt bàn");
+      return;
+    }
+
+    submitBooking();
   };
 
   return (
     <div className="space-y-6 md:space-y-8">
       {/* Header trang */}
-      <section className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-          Đặt bàn
-        </h1>
-        <p className="text-sm text-muted-foreground md:text-base">
-          Chọn bàn phù hợp và đặt trước dễ dàng
-        </p>
+      <section className="overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-sm">
+        <div className="bg-linear-to-r from-orange-500 to-amber-400 p-5 text-white md:p-6">
+          <Badge className="bg-white/20 text-white hover:bg-white/20">
+            Đặt bàn thông minh
+          </Badge>
+          <h1 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">
+            Chọn bàn theo nhu cầu của bạn
+          </h1>
+          <p className="mt-2 text-sm text-white/90 md:text-base">
+            Lọc theo khu vực, xem trạng thái theo thời gian thực và xác nhận đặt
+            bàn chỉ trong vài bước.
+          </p>
+        </div>
+
+        <div className="grid gap-3 border-t border-orange-100 bg-orange-50/30 p-4 text-sm text-orange-800 sm:grid-cols-3">
+          <div className="rounded-2xl bg-white px-3 py-2">
+            Bàn trống: <span className="font-semibold">{floorCount.all}</span>
+          </div>
+          <div className="rounded-2xl bg-white px-3 py-2">
+            Khu VIP: <span className="font-semibold">{floorCount.vip}</span>
+          </div>
+          <div className="rounded-2xl bg-white px-3 py-2">
+            Đặt nhanh trong ngày
+          </div>
+        </div>
       </section>
 
       {/* Tabs chọn tầng */}
@@ -217,46 +290,59 @@ export default function BookTablePage() {
 
       {/* Sơ đồ bàn */}
       <section className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4 xl:grid-cols-5">
-        {visibleTables.map((table) => {
-          const status = statusMap[table.status];
+        {loading ? (
+          <div className="col-span-full rounded-2xl border border-dashed p-6 text-center text-sm text-muted-foreground">
+            Đang tải bàn...
+          </div>
+        ) : (
+          visibleTables.map((table) => {
+            const status = statusMap[table.status] ?? fallbackStatus;
+            const isBookable = table.status === "available";
 
-          return (
-            <Card
-              key={table.id}
-              role="button"
-              tabIndex={0}
-              onClick={() => openBookingDialog(table.id)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
-                  openBookingDialog(table.id);
-                }
-              }}
-              className={[
-                "aspect-square cursor-pointer rounded-2xl transition-all duration-200",
-                "hover:-translate-y-1 hover:shadow-lg",
-                status.cardClass,
-              ].join(" ")}
-            >
-              <CardContent className="flex h-full flex-col justify-between p-3 md:p-4">
-                <div className="flex items-center justify-between">
-                  <Badge className={status.badgeClass}>{status.label}</Badge>
-                  <UtensilsCrossed className="h-4 w-4 text-orange-500" />
-                </div>
+            return (
+              <Card
+                key={table.id}
+                role="button"
+                tabIndex={isBookable ? 0 : -1}
+                onClick={() => handleTableSelect(table)}
+                onKeyDown={(event) => {
+                  if (!isBookable) {
+                    return;
+                  }
 
-                <div className="space-y-1 text-center">
-                  <p className="text-lg font-bold text-foreground md:text-xl">
-                    Bàn {table.id.replace("B", "")}
-                  </p>
-                  <p className="inline-flex items-center justify-center gap-1 text-sm text-muted-foreground">
-                    <Users className="h-4 w-4" />
-                    {table.seats} chỗ
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    handleTableSelect(table);
+                  }
+                }}
+                className={[
+                  "aspect-square rounded-2xl transition-all duration-200",
+                  isBookable
+                    ? "cursor-pointer hover:-translate-y-1 hover:shadow-lg"
+                    : "cursor-not-allowed opacity-90",
+                  status.cardClass,
+                ].join(" ")}
+              >
+                <CardContent className="flex h-full flex-col justify-between p-3 md:p-4">
+                  <div className="flex items-center justify-between">
+                    <Badge className={status.badgeClass}>{status.label}</Badge>
+                    <UtensilsCrossed className="h-4 w-4 text-orange-500" />
+                  </div>
+
+                  <div className="space-y-1 text-center">
+                    <p className="text-lg font-bold text-foreground md:text-xl">
+                      Bàn {table.tableNumber || table.id}
+                    </p>
+                    <p className="inline-flex items-center justify-center gap-1 text-sm text-muted-foreground">
+                      <Users className="h-4 w-4" />
+                      {table.seats || table.capacity} chỗ
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })
+        )}
       </section>
 
       {/* Dialog xác nhận đặt bàn */}
@@ -355,8 +441,9 @@ export default function BookTablePage() {
             <Button
               className="h-11 rounded-full bg-orange-500 px-6 text-white hover:bg-orange-600"
               onClick={handleConfirmBooking}
+              disabled={submitting}
             >
-              Xác nhận đặt bàn
+              {submitting ? "Đang đặt..." : "Xác nhận đặt bàn"}
             </Button>
           </DialogFooter>
         </DialogContent>

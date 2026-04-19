@@ -3,7 +3,7 @@
  * Khách hàng có thể xem, tìm kiếm, và xem chi tiết các đơn hàng đã đặt
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -23,64 +23,40 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
+import api from "@/services/api/client";
+import { getCustomerAuthHeaders } from "@/services/customer-session";
 
-// Mock data: Lịch sử đơn hàng
-const MOCK_ORDERS = [
-  {
-    id: "#ORD-10005",
-    date: "2024-04-05",
-    time: "19:30",
-    items: ["Cơm tấm sườn non", "Nước mía", "Bánh flan"],
-    total: 450000,
-    status: "completed",
-    rating: 5,
-  },
-  {
-    id: "#ORD-10004",
-    date: "2024-04-03",
-    time: "12:00",
-    items: ["Phở bò", "Nước chanh", "Tráng miệng"],
-    total: 320000,
-    status: "completed",
-    rating: 4,
-  },
-  {
-    id: "#ORD-10003",
-    date: "2024-03-28",
-    time: "18:00",
-    items: ["Bún chả", "Bia", "Chè đậu xanh"],
-    total: 380000,
-    status: "completed",
-    rating: 5,
-  },
-  {
-    id: "#ORD-10002",
-    date: "2024-03-20",
-    time: "13:30",
-    items: ["Cơm chiên Dương Châu", "Canh chua"],
-    total: 280000,
-    status: "completed",
-    rating: 3,
-  },
-  {
-    id: "#ORD-10001",
-    date: "2024-03-15",
-    time: "19:00",
-    items: ["Lẩu hải sản", "Rượu vang"],
-    total: 950000,
-    status: "completed",
-    rating: 5,
-  },
-];
+const normalizeOrder = (order) => ({
+  id: order.id || order._id || order.orderCode,
+  orderCode: order.orderCode || order.id || order._id || "",
+  status: order.status || "pending",
+  items: Array.isArray(order.items) ? order.items : [],
+  totalAmount: Number(order.totalAmount || order.total || 0),
+  createdAt: order.createdAt || order.date || null,
+  rating: order.rating || 0,
+});
 
 const getStatusBadge = (status) => {
   const statusMap = {
-    completed: { label: "Đã hoàn thành", variant: "default" },
-    pending: { label: "Đang chờ", variant: "outline" },
-    cancelled: { label: "Đã hủy", variant: "destructive" },
+    completed: {
+      label: "Đã hoàn thành",
+      className: "bg-emerald-100 text-emerald-700 hover:bg-emerald-100",
+    },
+    pending: {
+      label: "Đang chờ",
+      className: "bg-orange-100 text-orange-700 hover:bg-orange-100",
+    },
+    canceled: {
+      label: "Đã hủy",
+      className: "bg-rose-100 text-rose-700 hover:bg-rose-100",
+    },
+    cancelled: {
+      label: "Đã hủy",
+      className: "bg-rose-100 text-rose-700 hover:bg-rose-100",
+    },
   };
   const config = statusMap[status] || statusMap.pending;
-  return <Badge variant={config.variant}>{config.label}</Badge>;
+  return <Badge className={config.className}>{config.label}</Badge>;
 };
 
 const getStarRating = (rating) => {
@@ -91,50 +67,97 @@ export default function OrderHistoryPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [expandedOrder, setExpandedOrder] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    Boolean(getCustomerAuthHeaders().Authorization),
+  );
+
+  useEffect(() => {
+    const loadOrders = async () => {
+      const headers = getCustomerAuthHeaders();
+      const hasAuth = Boolean(headers.Authorization);
+
+      setIsAuthenticated(hasAuth);
+
+      if (!hasAuth) {
+        setLoading(false);
+        setOrders([]);
+        return;
+      }
+
+      try {
+        const response = await api.get("/client/orders", { headers });
+        const nextOrders =
+          response.data?.orders || response.data?.orderHistory || [];
+        setOrders(nextOrders.map(normalizeOrder));
+      } catch (error) {
+        setOrders([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadOrders();
+  }, []);
 
   // Lọc đơn hàng
-  const filteredOrders = MOCK_ORDERS.filter((order) => {
-    const matchSearch = order.id.includes(searchTerm);
+  const filteredOrders = orders.filter((order) => {
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+    const matchSearch =
+      normalizedSearch.length === 0 ||
+      (order.orderCode || order.id || "")
+        .toLowerCase()
+        .includes(normalizedSearch);
     const matchStatus = statusFilter === "all" || order.status === statusFilter;
     return matchSearch && matchStatus;
   });
 
-  const totalSpent = MOCK_ORDERS.reduce((sum, order) => sum + order.total, 0);
-  const completedOrders = MOCK_ORDERS.length;
+  const totalSpent = orders.reduce((sum, order) => sum + order.totalAmount, 0);
+  const completedOrders = orders.filter(
+    (order) => order.status === "completed",
+  ).length;
   const averageRating = (
-    MOCK_ORDERS.reduce((sum, order) => sum + (order.rating || 0), 0) /
-    MOCK_ORDERS.length
+    orders.reduce((sum, order) => sum + (order.rating || 0), 0) /
+    (orders.length || 1)
   ).toFixed(1);
 
   return (
     <div className="space-y-6">
       {/* Tiêu đề */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Lịch sử đơn hàng</h1>
-        <p className="text-muted-foreground mt-2">
-          Xem chi tiết tất cả các đơn hàng của bạn
-        </p>
-      </div>
+      <section className="overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-sm">
+        <div className="bg-linear-to-r from-orange-500 to-amber-400 p-5 text-white md:p-6">
+          <Badge className="bg-white/20 text-white hover:bg-white/20">
+            Theo dõi đơn hàng
+          </Badge>
+          <h1 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">
+            Lịch sử đơn hàng của bạn
+          </h1>
+          <p className="mt-2 text-sm text-white/90 md:text-base">
+            Tra cứu nhanh mã đơn, trạng thái và tổng chi tiêu theo thời gian.
+          </p>
+        </div>
+      </section>
 
       {/* Thống kê nhanh */}
       <div className="grid gap-4 md:grid-cols-3">
         {/* Tổng chi tiêu */}
-        <Card>
+        <Card className="border-orange-100 bg-white shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">Tổng chi tiêu</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold text-orange-600">
               {(totalSpent / 1000000).toFixed(1)}M ₫
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {MOCK_ORDERS.length} đơn hàng
+              {orders.length} đơn hàng
             </p>
           </CardContent>
         </Card>
 
         {/* Số lượng đơn hàng */}
-        <Card>
+        <Card className="border-orange-100 bg-white shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">Tổng đơn hàng</CardTitle>
           </CardHeader>
@@ -147,7 +170,7 @@ export default function OrderHistoryPage() {
         </Card>
 
         {/* Điểm đánh giá trung bình */}
-        <Card>
+        <Card className="border-orange-100 bg-white shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">
               Đánh giá trung bình
@@ -163,7 +186,7 @@ export default function OrderHistoryPage() {
       </div>
 
       {/* Tìm kiếm & Lọc */}
-      <Card>
+      <Card className="border-orange-100 bg-white shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-medium">Tìm kiếm & Lọc</CardTitle>
         </CardHeader>
@@ -173,7 +196,7 @@ export default function OrderHistoryPage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
               placeholder="Tìm theo mã đơn (VD: #ORD-10005)..."
-              className="pl-10"
+              className="border-orange-100 bg-orange-50/30 pl-10"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -181,14 +204,14 @@ export default function OrderHistoryPage() {
 
           {/* Lọc theo trạng thái */}
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-[180px]">
+            <SelectTrigger className="w-full border-orange-100 bg-orange-50/30 sm:w-45">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tất cả trạng thái</SelectItem>
               <SelectItem value="completed">Đã hoàn thành</SelectItem>
               <SelectItem value="pending">Đang chờ</SelectItem>
-              <SelectItem value="cancelled">Đã hủy</SelectItem>
+              <SelectItem value="canceled">Đã hủy</SelectItem>
             </SelectContent>
           </Select>
         </CardContent>
@@ -196,28 +219,56 @@ export default function OrderHistoryPage() {
 
       {/* Danh sách đơn hàng */}
       <div className="space-y-3">
-        {filteredOrders.length > 0 ? (
+        {loading ? (
+          <Card className="border-orange-100 bg-white shadow-sm">
+            <CardContent className="py-12 text-center text-muted-foreground">
+              Đang tải đơn hàng...
+            </CardContent>
+          </Card>
+        ) : !isAuthenticated ? (
+          <Card className="border-orange-100 bg-white shadow-sm">
+            <CardContent className="py-12 text-center">
+              <FileText className="size-12 mx-auto text-muted-foreground mb-3" />
+              <p className="font-medium text-foreground">
+                Vui lòng đăng nhập để xem lịch sử đơn hàng
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Hệ thống sẽ truy xuất đơn hàng trực tiếp từ cơ sở dữ liệu sau
+                khi bạn đăng nhập.
+              </p>
+            </CardContent>
+          </Card>
+        ) : filteredOrders.length > 0 ? (
           filteredOrders.map((order) => (
             <Card
-              key={order.id}
-              className="cursor-pointer hover:shadow-md transition-shadow"
+              key={order.id || order.orderCode}
+              className="cursor-pointer border-orange-100 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
               onClick={() =>
-                setExpandedOrder(expandedOrder === order.id ? null : order.id)
+                setExpandedOrder(
+                  expandedOrder === (order.id || order.orderCode)
+                    ? null
+                    : order.id || order.orderCode,
+                )
               }
             >
               <CardContent className="pt-6">
                 {/* Header đơn hàng */}
-                <div className="flex items-center justify-between mb-4">
+                <div className="mb-4 flex items-center justify-between">
                   <div className="flex-1">
-                    <h3 className="font-semibold text-lg">{order.id}</h3>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                    <h3 className="font-semibold text-lg">
+                      {order.orderCode || order.id}
+                    </h3>
+                    <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
                       <Clock className="size-4" />
-                      {order.date} • {order.time}
+                      {order.createdAt
+                        ? new Date(order.createdAt).toLocaleString("vi-VN")
+                        : "Không có thời gian"}
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="text-2xl font-bold">
-                      {(order.total / 1000).toFixed(0)}k ₫
+                      {new Intl.NumberFormat("vi-VN").format(order.totalAmount)}{" "}
+                      ₫
                     </div>
                     {getStatusBadge(order.status)}
                   </div>
@@ -226,18 +277,18 @@ export default function OrderHistoryPage() {
                 <Separator className="my-4" />
 
                 {/* Chi tiết mở rộng */}
-                {expandedOrder === order.id && (
+                {expandedOrder === (order.id || order.orderCode) && (
                   <>
                     {/* Danh sách items */}
                     <div className="mb-4">
                       <h4 className="font-medium text-sm mb-2">Các món ăn:</h4>
                       <ul className="space-y-1 ml-4">
-                        {order.items.map((item, idx) => (
+                        {(order.items || []).map((item, idx) => (
                           <li
                             key={idx}
                             className="text-sm text-muted-foreground list-disc"
                           >
-                            {item}
+                            {item.name} x{item.quantity}
                           </li>
                         ))}
                       </ul>
@@ -250,12 +301,20 @@ export default function OrderHistoryPage() {
                     </div>
 
                     {/* Action buttons */}
-                    <div className="flex gap-2 pt-4 border-t">
-                      <Button variant="outline" size="sm" className="flex-1">
+                    <div className="flex gap-2 border-t pt-4">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 border-orange-200 text-orange-700 hover:bg-orange-50"
+                      >
                         <FileText className="size-4 mr-2" />
                         Chi tiết
                       </Button>
-                      <Button variant="outline" size="sm" className="flex-1">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 border-orange-200 text-orange-700 hover:bg-orange-50"
+                      >
                         Đặt lại
                       </Button>
                     </div>
@@ -265,7 +324,7 @@ export default function OrderHistoryPage() {
             </Card>
           ))
         ) : (
-          <Card>
+          <Card className="border-orange-100 bg-white shadow-sm">
             <CardContent className="pt-6 text-center py-12">
               <FileText className="size-12 mx-auto text-muted-foreground mb-3" />
               <p className="text-muted-foreground">Không tìm thấy đơn hàng</p>

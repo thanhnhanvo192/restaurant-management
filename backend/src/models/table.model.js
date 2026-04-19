@@ -27,5 +27,10 @@ const tableSchema = new mongoose.Schema(
   },
 );
 
+tableSchema.index({ tableNumber: 1 }, { unique: true });
+tableSchema.index({ status: 1, createdAt: -1 });
+tableSchema.index({ area: 1, status: 1 });
+tableSchema.index({ createdAt: -1 });
+
 const Table = mongoose.model("Table", tableSchema);
 export default Table;

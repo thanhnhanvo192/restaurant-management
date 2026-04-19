@@ -9,7 +9,7 @@ Allow administrators to maintain staff directory, role assignments, activation s
 - Admin route: `/admin/staffs`
 - Frontend page: `frontend/src/features/staff/pages/staff-page.jsx`
 - Backend endpoint currently available:
-  - `GET /admin/staffss`
+  - `GET /admin/staffs`
 
 ## Current Implementation Status
 
@@ -27,7 +27,7 @@ Allow administrators to maintain staff directory, role assignments, activation s
 
 - Add/edit/toggle role/status currently mutate local state only.
 - Missing backend CRUD endpoints for staff records.
-- Debug logging remains in backend/frontend (`console.log`).
+- Debug logging should be checked during ongoing hardening.
 
 ## Recommended Milestones
 

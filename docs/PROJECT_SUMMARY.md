@@ -24,23 +24,24 @@ Restaurant Management System is a full-stack web application for restaurant oper
 
 ### Admin
 
-- Table Management: API-backed CRUD implemented.
-- Menu Management: list/create implemented; update/delete pending on backend.
-- Staff Management: list API exists; create/update/delete still pending on backend.
-- Customer Management: list API exists; action endpoints (reward/lock/update) pending.
-- Orders/Invoices: list API exists; mutation and export flow still partial.
+- Table Management: API-backed CRUD implemented with search, filters, and inline edits.
+- Menu Management: list/create implemented; update/delete are still pending on the backend.
+- Staff Management: list API exists; create/update/delete are still pending on the backend.
+- Customer Management: list API exists; action endpoints (reward/lock/update) are still pending.
+- Orders/Invoices: list API exists; mutation and export flow are still partial.
 - Dashboard/Analytics: frontend experience exists; backend endpoints are still placeholders.
 
 ### Customer
 
-- Customer pages and routing exist.
-- Major customer pages are still mostly mock/local-state driven until client APIs are implemented.
+- Customer route layer and auth flow now exist.
+- Customer pages are wired to backend APIs for dashboard, tables, bookings, categories, menus, orders, profile, and addresses.
+- Shared session helpers store access/refresh tokens and cached profile data for the customer shell.
 
 ### Platform
 
 - Image upload pipeline (Multer) is implemented.
 - Base error handling exists in backend.
-- Authentication/authorization is not fully implemented yet.
+- Customer authentication/session handling is implemented; admin authorization hardening is still pending.
 
 ## 5. Tech Stack
 
@@ -68,7 +69,10 @@ backend/src/
 ├── configs/
 ├── models/
 ├── controllers/admin/
+├── controllers/client/
 ├── routes/admin/
+├── routes/client/
+├── routes/auth.route.js
 └── middlewares/
 ```
 
@@ -90,6 +94,6 @@ Frontend (`app` + `features`) -> service API client (`services/api/client.js`) -
 ## 8. Current Status
 
 - Frontend refactor to feature-first structure completed.
-- Build passes after refactor.
-- Documentation in `docs/features/*` now maps to feature-first paths.
-- Remaining major work: backend completion for dashboard/statistics/staff/customer actions and customer-facing API layer.
+- Customer-facing backend APIs are implemented and mounted through `/client/*` and `/auth`.
+- Build currently reflects the feature-first app structure and the new customer session flow.
+- Remaining major work: admin backend completion for dashboard/statistics/staff/customer actions, plus auth/authorization hardening.
