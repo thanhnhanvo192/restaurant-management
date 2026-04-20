@@ -45,27 +45,27 @@ const statusMap = {
   available: {
     label: "Trống",
     cardClass:
-      "border-2 border-emerald-400 bg-white hover:border-emerald-500 hover:shadow-emerald-100",
-    badgeClass: "bg-emerald-100 text-emerald-700",
+      "border-2 border-sky-200 bg-white hover:border-[hsl(var(--customer-primary))] hover:shadow-[hsl(var(--customer-primary)/0.12)]",
+    badgeClass: "bg-sky-100 text-sky-700",
   },
   reserved: {
     label: "Đã đặt trước",
     cardClass:
-      "border-2 border-slate-300 bg-slate-100 hover:border-slate-400 hover:shadow-slate-200",
-    badgeClass: "bg-slate-200 text-slate-700",
+      "border-2 border-slate-200 bg-slate-50 hover:border-slate-300 hover:shadow-slate-100",
+    badgeClass: "bg-slate-100 text-slate-700",
   },
   serving: {
     label: "Đang phục vụ",
     cardClass:
-      "border-2 border-rose-300 bg-rose-100 hover:border-rose-400 hover:shadow-rose-200",
-    badgeClass: "bg-rose-200 text-rose-700",
+      "border-2 border-cyan-200 bg-cyan-50 hover:border-cyan-300 hover:shadow-cyan-100",
+    badgeClass: "bg-cyan-100 text-cyan-700",
   },
 };
 
 const fallbackStatus = {
   label: "Không khả dụng",
-  cardClass: "border-2 border-amber-300 bg-amber-50",
-  badgeClass: "bg-amber-100 text-amber-700",
+  cardClass: "border-2 border-sky-200 bg-sky-50",
+  badgeClass: "bg-sky-100 text-sky-700",
 };
 
 export default function BookTablePage() {
@@ -224,8 +224,8 @@ export default function BookTablePage() {
   return (
     <div className="space-y-6 md:space-y-8">
       {/* Header trang */}
-      <section className="overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-sm">
-        <div className="bg-linear-to-r from-orange-500 to-amber-400 p-5 text-white md:p-6">
+      <section className="overflow-hidden rounded-3xl border border-[hsl(var(--customer-border))] bg-white shadow-sm">
+        <div className="bg-linear-to-r from-[hsl(var(--customer-primary))] to-[hsl(var(--customer-bg))] p-5 text-white md:p-6">
           <Badge className="bg-white/20 text-white hover:bg-white/20">
             Đặt bàn thông minh
           </Badge>
@@ -238,7 +238,7 @@ export default function BookTablePage() {
           </p>
         </div>
 
-        <div className="grid gap-3 border-t border-orange-100 bg-orange-50/30 p-4 text-sm text-orange-800 sm:grid-cols-3">
+        <div className="grid gap-3 border-t border-[hsl(var(--customer-border))] bg-[hsl(var(--customer-surface-soft)/0.5)] p-4 text-sm text-[hsl(var(--customer-text-accent))] sm:grid-cols-3">
           <div className="rounded-2xl bg-white px-3 py-2">
             Bàn trống: <span className="font-semibold">{floorCount.all}</span>
           </div>
@@ -253,28 +253,28 @@ export default function BookTablePage() {
 
       {/* Tabs chọn tầng */}
       <Tabs value={activeFloor} onValueChange={setActiveFloor}>
-        <TabsList className="h-auto rounded-2xl bg-orange-50/80 p-1">
+        <TabsList className="h-auto rounded-2xl bg-[hsl(var(--customer-surface-soft)/0.8)] p-1">
           <TabsTrigger
             value="all"
-            className="rounded-xl px-4 py-2 data-active:bg-orange-500 data-active:text-white"
+            className="rounded-xl px-4 py-2 data-active:bg-[hsl(var(--customer-primary))] data-active:text-white"
           >
             Tất cả ({floorCount.all})
           </TabsTrigger>
           <TabsTrigger
             value="ground"
-            className="rounded-xl px-4 py-2 data-active:bg-orange-500 data-active:text-white"
+            className="rounded-xl px-4 py-2 data-active:bg-[hsl(var(--customer-primary))] data-active:text-white"
           >
             Tầng trệt ({floorCount.ground})
           </TabsTrigger>
           <TabsTrigger
             value="floor1"
-            className="rounded-xl px-4 py-2 data-active:bg-orange-500 data-active:text-white"
+            className="rounded-xl px-4 py-2 data-active:bg-[hsl(var(--customer-primary))] data-active:text-white"
           >
             Lầu 1 ({floorCount.floor1})
           </TabsTrigger>
           <TabsTrigger
             value="vip"
-            className="rounded-xl px-4 py-2 data-active:bg-orange-500 data-active:text-white"
+            className="rounded-xl px-4 py-2 data-active:bg-[hsl(var(--customer-primary))] data-active:text-white"
           >
             VIP ({floorCount.vip})
           </TabsTrigger>
@@ -326,7 +326,7 @@ export default function BookTablePage() {
                 <CardContent className="flex h-full flex-col justify-between p-3 md:p-4">
                   <div className="flex items-center justify-between">
                     <Badge className={status.badgeClass}>{status.label}</Badge>
-                    <UtensilsCrossed className="h-4 w-4 text-orange-500" />
+                    <UtensilsCrossed className="h-4 w-4 text-[hsl(var(--customer-primary))]" />
                   </div>
 
                   <div className="space-y-1 text-center">
@@ -347,7 +347,7 @@ export default function BookTablePage() {
 
       {/* Dialog xác nhận đặt bàn */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto rounded-2xl border-orange-100">
+        <DialogContent className="max-h-[90vh] overflow-y-auto rounded-2xl border-[hsl(var(--customer-border))]">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-foreground">
               Xác nhận đặt bàn {selectedTable ? selectedTable.id : ""}
@@ -364,7 +364,7 @@ export default function BookTablePage() {
                 htmlFor="booking-date"
                 className="inline-flex items-center gap-2"
               >
-                <CalendarDays className="h-4 w-4 text-orange-500" />
+                <CalendarDays className="h-4 w-4 text-[hsl(var(--customer-primary))]" />
                 Chọn ngày đặt (DatePicker)
               </Label>
               <Input
@@ -382,7 +382,7 @@ export default function BookTablePage() {
                 htmlFor="booking-time"
                 className="inline-flex items-center gap-2"
               >
-                <Clock3 className="h-4 w-4 text-orange-500" />
+                <Clock3 className="h-4 w-4 text-[hsl(var(--customer-primary))]" />
                 Chọn giờ (TimePicker)
               </Label>
               <Select value={bookingTime} onValueChange={setBookingTime}>
@@ -427,7 +427,7 @@ export default function BookTablePage() {
             </div>
 
             {selectedTable ? (
-              <div className="rounded-xl border border-orange-200 bg-orange-50 p-3 text-sm text-orange-700">
+              <div className="rounded-xl border border-[hsl(var(--customer-border))] bg-[hsl(var(--customer-surface-soft))] p-3 text-sm text-[hsl(var(--customer-text-accent))]">
                 Bàn {selectedTable.id} phù hợp tối đa {selectedTable.seats}{" "}
                 khách.
               </div>
@@ -439,7 +439,7 @@ export default function BookTablePage() {
               Hủy
             </Button>
             <Button
-              className="h-11 rounded-full bg-orange-500 px-6 text-white hover:bg-orange-600"
+              className="h-11 rounded-full bg-[hsl(var(--customer-primary))] px-6 text-white hover:bg-[hsl(var(--customer-primary-hover))]"
               onClick={handleConfirmBooking}
               disabled={submitting}
             >

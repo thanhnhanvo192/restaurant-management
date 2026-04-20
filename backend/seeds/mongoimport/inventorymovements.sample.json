@@ -1,0 +1,65 @@
+[
+  {
+    "_id": { "$oid": "670000000000000000000801" },
+    "inventoryId": { "$oid": "670000000000000000000701" },
+    "type": "stock_in",
+    "quantityDelta": 10,
+    "quantityBefore": 18,
+    "quantityAfter": 28,
+    "reason": "Nhap hang dinh ky",
+    "note": "Don nhap #NH001",
+    "referenceType": "restock",
+    "referenceId": "NH001",
+    "performedBy": {
+      "id": "670000000000000000000202",
+      "fullName": "Quan Ly Kho",
+      "role": "inventory-manager"
+    },
+    "rollbackFromMovementId": null,
+    "rolledBackAt": null,
+    "createdAt": { "$date": "2026-04-19T08:00:00.000Z" },
+    "updatedAt": { "$date": "2026-04-19T08:00:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "670000000000000000000802" },
+    "inventoryId": { "$oid": "670000000000000000000702" },
+    "type": "stock_out",
+    "quantityDelta": -4,
+    "quantityBefore": 10,
+    "quantityAfter": 6,
+    "reason": "Xuat cho bep",
+    "note": "Phuc vu gio trua",
+    "referenceType": "manual",
+    "referenceId": "",
+    "performedBy": {
+      "id": "670000000000000000000202",
+      "fullName": "Quan Ly Kho",
+      "role": "inventory-manager"
+    },
+    "rollbackFromMovementId": null,
+    "rolledBackAt": null,
+    "createdAt": { "$date": "2026-04-19T08:30:00.000Z" },
+    "updatedAt": { "$date": "2026-04-19T08:30:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "670000000000000000000803" },
+    "inventoryId": { "$oid": "670000000000000000000703" },
+    "type": "adjustment",
+    "quantityDelta": 5,
+    "quantityBefore": 40,
+    "quantityAfter": 45,
+    "reason": "Kiem ke chen lech",
+    "note": "Dieu chinh theo bien ban 19/04",
+    "referenceType": "manual",
+    "referenceId": "KK1904",
+    "performedBy": {
+      "id": "670000000000000000000201",
+      "fullName": "Admin Tong",
+      "role": "admin"
+    },
+    "rollbackFromMovementId": null,
+    "rolledBackAt": null,
+    "createdAt": { "$date": "2026-04-19T09:00:00.000Z" },
+    "updatedAt": { "$date": "2026-04-19T09:00:00.000Z" }
+  }
+]

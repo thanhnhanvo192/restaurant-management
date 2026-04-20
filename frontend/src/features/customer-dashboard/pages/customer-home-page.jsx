@@ -87,13 +87,31 @@ const CONTACT_INFO = [
   },
 ];
 
+const BRAND_HIGHLIGHTS = [
+  {
+    title: "Đặt bàn nhanh",
+    desc: "Giữ chỗ theo khung giờ bạn chọn chỉ trong vài bước.",
+    icon: CalendarDays,
+  },
+  {
+    title: "Thực đơn nổi bật",
+    desc: "Gợi ý món hot, món theo mùa và combo bán chạy mỗi ngày.",
+    icon: UtensilsCrossed,
+  },
+  {
+    title: "Phục vụ chuyên nghiệp",
+    desc: "Trải nghiệm đặt món, theo dõi đơn và hỗ trợ khách hàng xuyên suốt.",
+    icon: UserCircle2,
+  },
+];
+
 function formatVnd(price) {
   return new Intl.NumberFormat("vi-VN").format(price) + " ₫";
 }
 
 function StarRating({ rating }) {
   return (
-    <div className="flex items-center gap-1 text-orange-500">
+    <div className="flex items-center gap-1 text-[hsl(var(--customer-primary))]">
       <Star className="w-4 h-4 fill-current" />
       <span className="text-sm font-medium text-foreground">{rating}</span>
     </div>
@@ -130,15 +148,44 @@ export default function CustomerHome() {
 
   return (
     <div className="space-y-8 md:space-y-10">
+      {/* Announcement strip */}
+      <section className="rounded-3xl border border-[hsl(var(--customer-border))] bg-white px-4 py-3 shadow-sm md:px-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[hsl(var(--customer-primary))] text-white shadow-lg shadow-[hsl(var(--customer-primary)/0.18)]">
+              <UtensilsCrossed className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-foreground">
+                NATAVU Restaurant
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Trải nghiệm đặt bàn, gọi món và theo dõi đơn hàng theo phong
+                cách storefront hiện đại.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <Badge className="bg-[hsl(var(--customer-surface-soft))] text-[hsl(var(--customer-text-accent))] hover:bg-[hsl(var(--customer-surface-soft))]">
+              Palette #10302C / #D69C52
+            </Badge>
+            <Badge className="bg-white text-[hsl(var(--customer-primary))] border border-[hsl(var(--customer-border))] hover:bg-white">
+              Giao diện responsive
+            </Badge>
+          </div>
+        </div>
+      </section>
+
       {/* Hero Banner */}
-      <section className="relative overflow-hidden rounded-4xl border border-orange-100 bg-linear-to-br from-orange-500 via-orange-400 to-amber-300 text-white shadow-[0_24px_70px_rgba(249,115,22,0.28)]">
+      <section className="relative overflow-hidden rounded-4xl border border-[hsl(var(--customer-border))] bg-linear-to-br from-[hsl(var(--customer-primary))] via-[hsl(var(--customer-primary-hover))] to-[hsl(var(--customer-bg))] text-white shadow-[0_24px_70px_hsl(var(--customer-primary)/0.26)]">
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1600&q=80"
             alt="Không gian nhà hàng ABC"
             className="object-cover w-full h-full opacity-25"
           />
-          <div className="absolute inset-0 bg-linear-to-r from-orange-600/95 via-orange-500/80 to-amber-400/70" />
+          <div className="absolute inset-0 bg-linear-to-r from-[hsl(var(--customer-primary-hover))/0.92] via-[hsl(var(--customer-primary))/0.8] to-[hsl(var(--customer-bg))/0.76]" />
           <div className="absolute w-40 h-40 rounded-full -left-16 top-10 bg-white/10 blur-3xl" />
           <div className="absolute bottom-0 rounded-full -right-8 h-52 w-52 bg-white/10 blur-3xl" />
         </div>
@@ -147,7 +194,7 @@ export default function CustomerHome() {
           <div className="space-y-6">
             <Badge className="text-white w-fit border-white/20 bg-white/15 hover:bg-white/20">
               <Sparkles className="mr-2 h-3.5 w-3.5" />
-              Trải nghiệm đặt món nhanh và ấm cúng
+              Không gian ẩm thực hiện đại, sạch và chuyên nghiệp
             </Badge>
 
             <div className="space-y-4">
@@ -155,14 +202,15 @@ export default function CustomerHome() {
                 Chào mừng bạn đến với Nhà hàng NATAVU
               </h1>
               <p className="max-w-xl text-base leading-7 text-white/90 md:text-lg">
-                Món ngon - Không gian ấm cúng - Phục vụ nhanh chóng
+                Món ngon - Dịch vụ chuyên nghiệp - Trải nghiệm đặt món nhanh
+                chóng
               </p>
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button
                 asChild
-                className="h-12 px-6 text-base font-semibold text-orange-600 bg-white rounded-full shadow-lg shadow-orange-900/10 hover:bg-orange-50"
+                className="h-12 rounded-full bg-white px-6 text-base font-semibold text-[hsl(var(--customer-text-accent))] shadow-lg shadow-[hsl(var(--customer-primary)/0.15)] hover:bg-[hsl(var(--customer-surface-soft))]"
               >
                 <Link to="/customer/book-table">
                   Đặt bàn ngay
@@ -211,6 +259,32 @@ export default function CustomerHome() {
         </div>
       </section>
 
+      {/* Brand highlights */}
+      <section className="grid gap-4 lg:grid-cols-3">
+        {BRAND_HIGHLIGHTS.map((item) => {
+          const Icon = item.icon;
+
+          return (
+            <Card
+              key={item.title}
+              className="group border-[hsl(var(--customer-border))] bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-[hsl(var(--customer-primary)/0.14)]"
+            >
+              <CardContent className="flex items-start gap-4 p-5">
+                <div className="rounded-2xl bg-[hsl(var(--customer-surface-soft))] p-3 text-[hsl(var(--customer-primary))] transition-colors group-hover:bg-[hsl(var(--customer-primary))] group-hover:text-white">
+                  <Icon className="w-5 h-5" />
+                </div>
+                <div className="space-y-1">
+                  <p className="font-semibold text-foreground">{item.title}</p>
+                  <p className="text-sm leading-6 text-muted-foreground">
+                    {item.desc}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </section>
+
       {/* Thông tin nhà hàng */}
       <section className="grid gap-4 md:grid-cols-3">
         {CONTACT_INFO.map((item) => {
@@ -219,10 +293,10 @@ export default function CustomerHome() {
           return (
             <Card
               key={item.title}
-              className="transition-all duration-200 bg-white border-orange-100 shadow-sm group hover:-translate-y-1 hover:shadow-xl hover:shadow-orange-100"
+              className="group border-[hsl(var(--customer-border))] bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-[hsl(var(--customer-primary)/0.14)]"
             >
               <CardContent className="flex items-start gap-4 p-5">
-                <div className="p-3 text-orange-500 transition-colors rounded-2xl bg-orange-50 group-hover:bg-orange-500 group-hover:text-white">
+                <div className="rounded-2xl bg-[hsl(var(--customer-surface-soft))] p-3 text-[hsl(var(--customer-primary))] transition-colors group-hover:bg-[hsl(var(--customer-primary))] group-hover:text-white">
                   <Icon className="w-5 h-5" />
                 </div>
                 <div className="space-y-1">
@@ -254,7 +328,7 @@ export default function CustomerHome() {
           <Button
             asChild
             variant="ghost"
-            className="hidden text-orange-600 hover:bg-orange-50 hover:text-orange-700 md:inline-flex"
+            className="hidden text-[hsl(var(--customer-text-accent))] hover:bg-[hsl(var(--customer-surface-soft))] hover:text-[hsl(var(--customer-primary-hover))] md:inline-flex"
           >
             <Link to="/customer/menu">
               Xem tất cả
@@ -267,7 +341,7 @@ export default function CustomerHome() {
           {featuredDishes.map((dish) => (
             <Card
               key={dish.name}
-              className="overflow-hidden transition-all duration-200 bg-white border-orange-100 shadow-sm group hover:-translate-y-1 hover:shadow-xl hover:shadow-orange-100"
+              className="group overflow-hidden border-[hsl(var(--customer-border))] bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-[hsl(var(--customer-primary)/0.14)]"
             >
               <div className="relative overflow-hidden h-36 md:h-44">
                 <img
@@ -283,7 +357,7 @@ export default function CustomerHome() {
                   <h3 className="text-sm font-semibold line-clamp-1 text-foreground md:text-base">
                     {dish.name}
                   </h3>
-                  <p className="text-base font-bold text-orange-600 md:text-lg">
+                  <p className="text-base font-bold text-[hsl(var(--customer-text-accent))] md:text-lg">
                     {formatVnd(dish.price)}
                   </p>
                 </div>
@@ -292,7 +366,7 @@ export default function CustomerHome() {
                   <StarRating rating={dish.rating} />
                   <Button
                     size="sm"
-                    className="h-8 px-3 text-xs text-white bg-orange-500 rounded-full hover:bg-orange-600"
+                    className="h-8 rounded-full bg-[hsl(var(--customer-primary))] px-3 text-xs text-white hover:bg-[hsl(var(--customer-primary-hover))]"
                   >
                     Thêm vào giỏ
                   </Button>
@@ -311,12 +385,12 @@ export default function CustomerHome() {
           return (
             <Card
               key={action.title}
-              className="transition-all duration-200 bg-white border-orange-100 shadow-sm group hover:-translate-y-1 hover:shadow-xl hover:shadow-orange-100"
+              className="group border-[hsl(var(--customer-border))] bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-[hsl(var(--customer-primary)/0.14)]"
             >
               <CardContent className="p-5">
                 <Link to={action.to} className="block">
                   <div className="flex items-center gap-4">
-                    <div className="flex items-center justify-center w-12 h-12 text-orange-500 transition-colors rounded-2xl bg-orange-50 group-hover:bg-orange-500 group-hover:text-white">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[hsl(var(--customer-surface-soft))] text-[hsl(var(--customer-primary))] transition-colors group-hover:bg-[hsl(var(--customer-primary))] group-hover:text-white">
                       <Icon className="w-5 h-5" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -327,7 +401,7 @@ export default function CustomerHome() {
                         {action.desc}
                       </p>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-orange-400 transition-transform group-hover:translate-x-1" />
+                    <ArrowRight className="w-4 h-4 transition-transform text-sky-400 group-hover:translate-x-1" />
                   </div>
                 </Link>
               </CardContent>
@@ -336,32 +410,8 @@ export default function CustomerHome() {
         })}
       </section>
 
-      {/* Promo / Khuyến mãi */}
-      <section>
-        <Card className="overflow-hidden border-orange-100 bg-linear-to-r from-orange-500 to-amber-400 text-white shadow-[0_20px_60px_rgba(249,115,22,0.22)]">
-          <CardContent className="flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between md:p-6">
-            <div className="space-y-2">
-              <Badge className="text-white w-fit bg-white/20 hover:bg-white/25">
-                Khuyến mãi hôm nay
-              </Badge>
-              <h3 className="text-xl font-bold md:text-2xl">
-                Giảm 10% cho hoá đơn trên 500k
-              </h3>
-              <p className="max-w-2xl text-sm text-white/90 md:text-base">
-                Áp dụng cho tất cả đơn tại nhà hàng trong khung giờ trưa và tối.
-                Đặt bàn sớm để giữ chỗ đẹp.
-              </p>
-            </div>
-
-            <Button
-              asChild
-              className="px-5 text-orange-600 bg-white rounded-full h-11 hover:bg-orange-50"
-            >
-              <Link to="/customer/book-table">Nhận ưu đãi ngay</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </section>
+      {/* About */}
+      <section></section>
     </div>
   );
 }

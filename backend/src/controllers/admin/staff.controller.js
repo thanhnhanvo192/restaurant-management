@@ -13,7 +13,7 @@ const ALLOWED_SORT_FIELDS = [
   "email",
   "startDate",
 ];
-const ALLOWED_ROLES = ["admin", "waiter", "kitchen"];
+const ALLOWED_ROLES = ["admin", "waiter", "kitchen", "inventory-manager"];
 
 const normalizeText = (value) => String(value || "").trim();
 

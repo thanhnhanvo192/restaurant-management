@@ -72,7 +72,7 @@ export default function CustomerDashboardPage() {
         <Card className="transition-shadow hover:shadow-lg">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2">
-              <Calendar className="size-5 text-orange-500" />
+              <Calendar className="size-5 text-[hsl(var(--customer-primary))]" />
               Đặt bàn
             </CardTitle>
           </CardHeader>

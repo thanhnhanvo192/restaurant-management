@@ -1,0 +1,38 @@
+[
+  {
+    "_id": { "$oid": "670000000000000000000201" },
+    "fullName": "Admin Tong",
+    "email": "admin@natavu.local",
+    "phone": "0909000001",
+    "role": "admin",
+    "passwordHash": "pbkdf2$120000$de54250c66816d0bf11349f3bc15ce4c$2168efe0a9905e3b6f41b0611a63219dc239f2028cb1723bcc3e63ad0beedd57",
+    "startDate": { "$date": "2025-06-01T00:00:00.000Z" },
+    "active": true,
+    "createdAt": { "$date": "2025-06-01T00:00:00.000Z" },
+    "updatedAt": { "$date": "2026-04-19T00:00:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "670000000000000000000202" },
+    "fullName": "Quan Ly Kho",
+    "email": "inventory@natavu.local",
+    "phone": "0909000002",
+    "role": "inventory-manager",
+    "passwordHash": "pbkdf2$120000$de54250c66816d0bf11349f3bc15ce4c$2168efe0a9905e3b6f41b0611a63219dc239f2028cb1723bcc3e63ad0beedd57",
+    "startDate": { "$date": "2025-06-15T00:00:00.000Z" },
+    "active": true,
+    "createdAt": { "$date": "2025-06-15T00:00:00.000Z" },
+    "updatedAt": { "$date": "2026-04-19T00:00:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "670000000000000000000203" },
+    "fullName": "Phuc Vu 1",
+    "email": "waiter@natavu.local",
+    "phone": "0909000003",
+    "role": "waiter",
+    "passwordHash": "pbkdf2$120000$de54250c66816d0bf11349f3bc15ce4c$2168efe0a9905e3b6f41b0611a63219dc239f2028cb1723bcc3e63ad0beedd57",
+    "startDate": { "$date": "2025-07-01T00:00:00.000Z" },
+    "active": true,
+    "createdAt": { "$date": "2025-07-01T00:00:00.000Z" },
+    "updatedAt": { "$date": "2026-04-19T00:00:00.000Z" }
+  }
+]

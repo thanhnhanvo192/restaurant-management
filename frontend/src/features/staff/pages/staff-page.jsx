@@ -67,6 +67,7 @@ const ROLES = {
   admin: "Admin",
   waiter: "Waiter",
   kitchen: "Kitchen",
+  "inventory-manager": "Quản lý kho",
 };
 
 const PAGE_SIZE = 5;
@@ -79,7 +80,7 @@ const staffSchema = z.object({
     .min(1, "Email là bắt buộc")
     .email("Email không hợp lệ"),
   phone: z.string().trim().min(1, "Số điện thoại là bắt buộc"),
-  role: z.enum(["admin", "waiter", "kitchen"]),
+  role: z.enum(["admin", "waiter", "kitchen", "inventory-manager"]),
   password: z.string().optional(),
 });
 
@@ -95,6 +96,7 @@ const roleBadgeClassMap = {
   admin: "bg-violet-100 text-violet-700",
   waiter: "bg-blue-100 text-blue-700",
   kitchen: "bg-orange-100 text-orange-700",
+  "inventory-manager": "bg-emerald-100 text-emerald-700",
 };
 
 const formatDate = (isoDate) => {

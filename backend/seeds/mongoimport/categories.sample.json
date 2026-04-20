@@ -1,0 +1,29 @@
+[
+  {
+    "_id": { "$oid": "670000000000000000000401" },
+    "name": "Mon chinh",
+    "slug": "mon-chinh",
+    "sortOrder": 1,
+    "active": true,
+    "createdAt": { "$date": "2026-04-01T00:00:00.000Z" },
+    "updatedAt": { "$date": "2026-04-01T00:00:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "670000000000000000000402" },
+    "name": "Mon phu",
+    "slug": "mon-phu",
+    "sortOrder": 2,
+    "active": true,
+    "createdAt": { "$date": "2026-04-01T00:00:00.000Z" },
+    "updatedAt": { "$date": "2026-04-01T00:00:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "670000000000000000000403" },
+    "name": "Do uong",
+    "slug": "do-uong",
+    "sortOrder": 3,
+    "active": true,
+    "createdAt": { "$date": "2026-04-01T00:00:00.000Z" },
+    "updatedAt": { "$date": "2026-04-01T00:00:00.000Z" }
+  }
+]

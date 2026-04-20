@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { Badge } from "@/shared/components/ui/badge";
 import {
   Avatar,
   AvatarFallback,
@@ -394,7 +395,7 @@ export default function ProfilePage() {
   if (!isAuthenticated && loading) {
     return (
       <div className="space-y-6">
-        <Card>
+        <Card className="border-[hsl(var(--customer-border))] bg-white shadow-sm">
           <CardContent className="p-6">
             <p className="font-medium">Vui lòng đăng nhập để xem hồ sơ.</p>
           </CardContent>
@@ -405,32 +406,49 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Thông tin cá nhân</h1>
-        <p className="mt-2 text-muted-foreground">
-          Quản lý hồ sơ, địa chỉ, và mật khẩu
-        </p>
-      </div>
+      <section className="overflow-hidden rounded-3xl border border-[hsl(var(--customer-border))] bg-white shadow-sm">
+        <div className="bg-linear-to-r from-[hsl(var(--customer-primary))] to-[hsl(var(--customer-bg))] p-5 text-white md:p-6">
+          <Badge className="text-white bg-white/20 hover:bg-white/20">
+            Tài khoản khách hàng
+          </Badge>
+          <h1 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">
+            Thông tin cá nhân
+          </h1>
+          <p className="mt-2 text-sm text-white/90 md:text-base">
+            Quản lý hồ sơ, địa chỉ, và mật khẩu trong một khu vực tài khoản gọn
+            gàng.
+          </p>
+        </div>
+      </section>
 
       <Tabs defaultValue="profile" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="profile" className="flex items-center gap-2">
-            <User className="size-4" />
-            <span className="hidden sm:inline">Hồ sơ</span>
+        <TabsList className="h-auto flex-wrap justify-start gap-2 rounded-2xl bg-[hsl(var(--customer-surface-soft)/0.75)] p-2">
+          <TabsTrigger
+            value="profile"
+            className="rounded-xl px-4 py-2 data-[state=active]:bg-[hsl(var(--customer-primary))] data-[state=active]:text-white"
+          >
+            <User className="mr-2 size-4" />
+            Hồ sơ
           </TabsTrigger>
-          <TabsTrigger value="addresses" className="flex items-center gap-2">
-            <MapPin className="size-4" />
-            <span className="hidden sm:inline">Địa chỉ</span>
+          <TabsTrigger
+            value="addresses"
+            className="rounded-xl px-4 py-2 data-[state=active]:bg-[hsl(var(--customer-primary))] data-[state=active]:text-white"
+          >
+            <MapPin className="mr-2 size-4" />
+            Địa chỉ
           </TabsTrigger>
-          <TabsTrigger value="settings" className="flex items-center gap-2">
-            <Lock className="size-4" />
-            <span className="hidden sm:inline">Bảo mật</span>
+          <TabsTrigger
+            value="settings"
+            className="rounded-xl px-4 py-2 data-[state=active]:bg-[hsl(var(--customer-primary))] data-[state=active]:text-white"
+          >
+            <Lock className="mr-2 size-4" />
+            Cài đặt
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile">
-          <Card>
-            <CardHeader>
+          <Card className="border-[hsl(var(--customer-border))] bg-white shadow-sm">
+            <CardHeader className="space-y-1">
               <CardTitle>Thông tin hồ sơ</CardTitle>
               <CardDescription>
                 Cập nhật người liên hệ và thông tin cá nhân
@@ -438,7 +456,7 @@ export default function ProfilePage() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center gap-4">
-                <Avatar className="w-24 h-24">
+                <Avatar className="h-24 w-24 ring-4 ring-[hsl(var(--customer-surface-soft))] ring-offset-2 ring-offset-white">
                   <AvatarImage
                     src={profile.avatarUrl || profile.avatar}
                     alt={profile.name}
@@ -448,7 +466,10 @@ export default function ProfilePage() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="space-y-2">
-                  <Button variant="outline" className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    className="flex items-center gap-2 border-[hsl(var(--customer-border))] text-[hsl(var(--customer-text-accent))] hover:bg-[hsl(var(--customer-surface-soft))]"
+                  >
                     <Camera className="size-4" />
                     Đổi ảnh đại diện
                   </Button>
@@ -516,12 +537,17 @@ export default function ProfilePage() {
                   </div>
 
                   <div className="flex gap-2 pt-4">
-                    <Button type="submit" disabled={savingProfile}>
+                    <Button
+                      type="submit"
+                      disabled={savingProfile}
+                      className="bg-[hsl(var(--customer-primary))] text-white hover:bg-[hsl(var(--customer-primary-hover))]"
+                    >
                       {savingProfile ? "Đang lưu..." : "Lưu thay đổi"}
                     </Button>
                     <Button
                       type="button"
                       variant="outline"
+                      className="border-[hsl(var(--customer-border))] text-[hsl(var(--customer-text-accent))] hover:bg-[hsl(var(--customer-surface-soft))]"
                       onClick={() => {
                         setEditMode(false);
                         setEditForm({
@@ -580,7 +606,10 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
-                  <Button onClick={() => setEditMode(true)}>
+                  <Button
+                    onClick={() => setEditMode(true)}
+                    className="bg-[hsl(var(--customer-primary))] text-white hover:bg-[hsl(var(--customer-primary-hover))]"
+                  >
                     Chỉnh sửa thông tin
                   </Button>
                 </>
@@ -590,18 +619,23 @@ export default function ProfilePage() {
         </TabsContent>
 
         <TabsContent value="addresses">
-          <Card>
+          <Card className="border-[hsl(var(--customer-border))] bg-white shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between gap-4">
               <div>
                 <CardTitle>Địa chỉ của bạn</CardTitle>
                 <CardDescription>Quản lý các địa chỉ giao hàng</CardDescription>
               </div>
-              <Button onClick={startCreateAddress}>Thêm địa chỉ mới</Button>
+              <Button
+                onClick={startCreateAddress}
+                className="bg-[hsl(var(--customer-primary))] text-white hover:bg-[hsl(var(--customer-primary-hover))]"
+              >
+                Thêm địa chỉ mới
+              </Button>
             </CardHeader>
             <CardContent className="space-y-4">
               {addressFormVisible ? (
                 <form
-                  className="p-4 space-y-4 border rounded-2xl"
+                  className="space-y-4 rounded-2xl border border-[hsl(var(--customer-border))] bg-[hsl(var(--customer-surface-soft)/0.45)] p-4"
                   onSubmit={handleSaveAddress}
                 >
                   <div className="grid gap-4 md:grid-cols-2">
@@ -657,7 +691,11 @@ export default function ProfilePage() {
                   </div>
 
                   <div className="flex gap-2">
-                    <Button type="submit" disabled={savingAddress}>
+                    <Button
+                      type="submit"
+                      disabled={savingAddress}
+                      className="bg-[hsl(var(--customer-primary))] text-white hover:bg-[hsl(var(--customer-primary-hover))]"
+                    >
                       {savingAddress
                         ? "Đang lưu..."
                         : editingAddressId
@@ -667,6 +705,7 @@ export default function ProfilePage() {
                     <Button
                       type="button"
                       variant="outline"
+                      className="border-[hsl(var(--customer-border))] text-[hsl(var(--customer-text-accent))] hover:bg-[hsl(var(--customer-surface-soft))]"
                       onClick={resetAddressForm}
                     >
                       Hủy
@@ -683,14 +722,14 @@ export default function ProfilePage() {
                 addresses.map((address) => (
                   <div
                     key={address.id}
-                    className="p-4 space-y-3 transition-colors border rounded-lg hover:bg-accent"
+                    className="space-y-3 rounded-2xl border border-[hsl(var(--customer-border))] bg-white p-4 transition-colors hover:bg-[hsl(var(--customer-surface-soft)/0.35)]"
                   >
                     <div className="flex items-start justify-between">
                       <div>
                         <div className="flex items-center gap-2">
                           <h3 className="font-semibold">{address.name}</h3>
                           {address.isDefault ? (
-                            <span className="px-2 py-1 text-xs rounded bg-primary text-primary-foreground">
+                            <span className="rounded bg-[hsl(var(--customer-primary))] px-2 py-1 text-xs text-[hsl(var(--customer-primary-foreground))]">
                               Mặc định
                             </span>
                           ) : null}
@@ -711,6 +750,7 @@ export default function ProfilePage() {
                         <Button
                           variant="outline"
                           size="sm"
+                          className="border-[hsl(var(--customer-border))] text-[hsl(var(--customer-text-accent))] hover:bg-[hsl(var(--customer-surface-soft))]"
                           onClick={() => handleSetDefaultAddress(address)}
                         >
                           Đặt làm mặc định
@@ -719,6 +759,7 @@ export default function ProfilePage() {
                       <Button
                         variant="outline"
                         size="sm"
+                        className="border-[hsl(var(--customer-border))] text-[hsl(var(--customer-text-accent))] hover:bg-[hsl(var(--customer-surface-soft))]"
                         onClick={() => startEditAddress(address)}
                       >
                         Chỉnh sửa
@@ -745,7 +786,7 @@ export default function ProfilePage() {
 
         <TabsContent value="settings">
           <div className="space-y-4">
-            <Card>
+            <Card className="border-[hsl(var(--customer-border))] bg-white shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Lock className="size-5" />
@@ -808,7 +849,7 @@ export default function ProfilePage() {
                   <Button
                     type="submit"
                     disabled={savingPassword}
-                    className="w-full sm:w-auto"
+                    className="w-full bg-[hsl(var(--customer-primary))] text-white hover:bg-[hsl(var(--customer-primary-hover))] sm:w-auto"
                   >
                     {savingPassword ? "Đang cập nhật..." : "Cập nhật mật khẩu"}
                   </Button>
@@ -816,7 +857,7 @@ export default function ProfilePage() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="border-[hsl(var(--customer-border))] bg-white shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Bell className="size-5" />
@@ -824,7 +865,7 @@ export default function ProfilePage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <label className="flex items-center gap-3 p-3 border rounded cursor-pointer hover:bg-accent">
+                <label className="flex items-center gap-3 rounded-2xl border border-[hsl(var(--customer-border))] p-3 cursor-pointer hover:bg-[hsl(var(--customer-surface-soft)/0.35)]">
                   <input
                     type="checkbox"
                     checked={notificationForm.orderUpdates}
@@ -839,7 +880,7 @@ export default function ProfilePage() {
                   </div>
                 </label>
 
-                <label className="flex items-center gap-3 p-3 border rounded cursor-pointer hover:bg-accent">
+                <label className="flex items-center gap-3 rounded-2xl border border-[hsl(var(--customer-border))] p-3 cursor-pointer hover:bg-[hsl(var(--customer-surface-soft)/0.35)]">
                   <input
                     type="checkbox"
                     checked={notificationForm.promotions}
@@ -854,7 +895,7 @@ export default function ProfilePage() {
                   </div>
                 </label>
 
-                <label className="flex items-center gap-3 p-3 border rounded cursor-pointer hover:bg-accent">
+                <label className="flex items-center gap-3 rounded-2xl border border-[hsl(var(--customer-border))] p-3 cursor-pointer hover:bg-[hsl(var(--customer-surface-soft)/0.35)]">
                   <input
                     type="checkbox"
                     checked={notificationForm.emailMarketing}
@@ -872,6 +913,7 @@ export default function ProfilePage() {
                 <Button
                   onClick={handleSaveNotificationSettings}
                   disabled={savingNotifications}
+                  className="bg-[hsl(var(--customer-primary))] text-white hover:bg-[hsl(var(--customer-primary-hover))]"
                 >
                   {savingNotifications
                     ? "Đang lưu..."
@@ -880,7 +922,7 @@ export default function ProfilePage() {
               </CardContent>
             </Card>
 
-            <Card className="border-destructive">
+            <Card className="bg-white shadow-sm border-destructive">
               <CardHeader>
                 <CardTitle className="text-destructive">Đăng xuất</CardTitle>
                 <CardDescription>Đăng xuất khỏi tài khoản này</CardDescription>

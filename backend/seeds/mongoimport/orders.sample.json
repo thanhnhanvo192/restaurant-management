@@ -1,0 +1,86 @@
+[
+  {
+    "_id": { "$oid": "670000000000000000000601" },
+    "orderCode": "OD-DEMO-001",
+    "customerId": { "$oid": "670000000000000000000001" },
+    "customerSnapshot": {
+      "name": "Nguyen Van A",
+      "phone": "0901000001",
+      "email": "a.customer@example.com"
+    },
+    "tableId": { "$oid": "670000000000000000000101" },
+    "tableSnapshot": {
+      "tableNumber": "T01",
+      "area": "indoor",
+      "capacity": 4
+    },
+    "paymentMethod": "cash",
+    "status": "completed",
+    "items": [
+      {
+        "menuId": { "$oid": "670000000000000000000501" },
+        "name": "Bo luc lac",
+        "quantity": 1,
+        "unitPrice": 185000,
+        "imageUrl": "/uploads/menus/bo-luc-lac.jpg",
+        "categoryId": "mon-chinh"
+      },
+      {
+        "menuId": { "$oid": "670000000000000000000504" },
+        "name": "Tra dao cam sa",
+        "quantity": 2,
+        "unitPrice": 49000,
+        "imageUrl": "/uploads/menus/tra-dao.jpg",
+        "categoryId": "do-uong"
+      }
+    ],
+    "subtotal": 283000,
+    "taxAmount": 0,
+    "totalAmount": 283000,
+    "note": "Khach den dung gio",
+    "createdAt": { "$date": "2026-04-18T11:30:00.000Z" },
+    "updatedAt": { "$date": "2026-04-18T12:20:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "670000000000000000000602" },
+    "orderCode": "OD-DEMO-002",
+    "customerId": { "$oid": "670000000000000000000002" },
+    "customerSnapshot": {
+      "name": "Tran Thi B",
+      "phone": "0901000002",
+      "email": "b.customer@example.com"
+    },
+    "tableId": { "$oid": "670000000000000000000102" },
+    "tableSnapshot": {
+      "tableNumber": "T02",
+      "area": "indoor",
+      "capacity": 6
+    },
+    "paymentMethod": "card",
+    "status": "confirmed",
+    "items": [
+      {
+        "menuId": { "$oid": "670000000000000000000502" },
+        "name": "Com ga nuong",
+        "quantity": 3,
+        "unitPrice": 125000,
+        "imageUrl": "/uploads/menus/com-ga-nuong.jpg",
+        "categoryId": "mon-chinh"
+      },
+      {
+        "menuId": { "$oid": "670000000000000000000503" },
+        "name": "Khoai tay chien",
+        "quantity": 1,
+        "unitPrice": 55000,
+        "imageUrl": "/uploads/menus/khoai-tay-chien.jpg",
+        "categoryId": "mon-phu"
+      }
+    ],
+    "subtotal": 430000,
+    "taxAmount": 0,
+    "totalAmount": 430000,
+    "note": "Uu tien phuc vu nhanh",
+    "createdAt": { "$date": "2026-04-19T09:10:00.000Z" },
+    "updatedAt": { "$date": "2026-04-19T09:20:00.000Z" }
+  }
+]

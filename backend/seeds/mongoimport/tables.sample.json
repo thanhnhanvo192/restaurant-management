@@ -1,0 +1,38 @@
+[
+  {
+    "_id": { "$oid": "670000000000000000000101" },
+    "tableNumber": "T01",
+    "area": "indoor",
+    "capacity": 4,
+    "status": "available",
+    "createdAt": { "$date": "2026-04-10T08:00:00.000Z" },
+    "updatedAt": { "$date": "2026-04-19T07:00:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "670000000000000000000102" },
+    "tableNumber": "T02",
+    "area": "indoor",
+    "capacity": 6,
+    "status": "reserved",
+    "createdAt": { "$date": "2026-04-10T08:10:00.000Z" },
+    "updatedAt": { "$date": "2026-04-19T08:00:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "670000000000000000000103" },
+    "tableNumber": "T03",
+    "area": "outdoor",
+    "capacity": 2,
+    "status": "occupied",
+    "createdAt": { "$date": "2026-04-10T08:20:00.000Z" },
+    "updatedAt": { "$date": "2026-04-19T09:00:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "670000000000000000000104" },
+    "tableNumber": "T04",
+    "area": "vip",
+    "capacity": 8,
+    "status": "cleaning",
+    "createdAt": { "$date": "2026-04-10T08:30:00.000Z" },
+    "updatedAt": { "$date": "2026-04-19T10:00:00.000Z" }
+  }
+]

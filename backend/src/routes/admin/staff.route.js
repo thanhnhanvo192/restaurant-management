@@ -56,7 +56,7 @@ const createValidators = [
     .trim()
     .notEmpty()
     .withMessage("Vai trò là bắt buộc")
-    .isIn(["admin", "waiter", "kitchen"])
+    .isIn(["admin", "waiter", "kitchen", "inventory-manager"])
     .withMessage("Vai trò không hợp lệ"),
   body("password")
     .trim()
@@ -94,7 +94,7 @@ const updateValidators = [
   body("role")
     .optional()
     .trim()
-    .isIn(["admin", "waiter", "kitchen"])
+    .isIn(["admin", "waiter", "kitchen", "inventory-manager"])
     .withMessage("Vai trò không hợp lệ"),
   body("password")
     .optional()

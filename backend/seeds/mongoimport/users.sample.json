@@ -1,0 +1,34 @@
+[
+  {
+    "_id": { "$oid": "670000000000000000000301" },
+    "email": "admin@natavu.local",
+    "vaiTro": "admin",
+    "matKhau": "pbkdf2$120000$de54250c66816d0bf11349f3bc15ce4c$2168efe0a9905e3b6f41b0611a63219dc239f2028cb1723bcc3e63ad0beedd57",
+    "createdAt": { "$date": "2025-06-01T00:00:00.000Z" },
+    "updatedAt": { "$date": "2026-04-19T00:00:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "670000000000000000000302" },
+    "email": "inventory@natavu.local",
+    "vaiTro": "admin",
+    "matKhau": "pbkdf2$120000$de54250c66816d0bf11349f3bc15ce4c$2168efe0a9905e3b6f41b0611a63219dc239f2028cb1723bcc3e63ad0beedd57",
+    "createdAt": { "$date": "2025-06-15T00:00:00.000Z" },
+    "updatedAt": { "$date": "2026-04-19T00:00:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "670000000000000000000303" },
+    "email": "a.customer@example.com",
+    "vaiTro": "customer",
+    "matKhau": "pbkdf2$120000$4d2fc3b56069fa63a6aef3639acdc016$2f94ab5fdd3ddca3229a68e6c3ea7df866bee89a9dd1d6225952176fcee9556b",
+    "createdAt": { "$date": "2025-10-10T08:00:00.000Z" },
+    "updatedAt": { "$date": "2026-04-19T00:00:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "670000000000000000000304" },
+    "email": "b.customer@example.com",
+    "vaiTro": "customer",
+    "matKhau": "pbkdf2$120000$4d2fc3b56069fa63a6aef3639acdc016$2f94ab5fdd3ddca3229a68e6c3ea7df866bee89a9dd1d6225952176fcee9556b",
+    "createdAt": { "$date": "2025-12-01T09:00:00.000Z" },
+    "updatedAt": { "$date": "2026-04-19T00:00:00.000Z" }
+  }
+]

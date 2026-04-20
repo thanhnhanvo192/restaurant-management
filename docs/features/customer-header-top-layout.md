@@ -45,6 +45,15 @@ Chuyển giao diện customer từ bố cục sidebar bên trái sang bố cục
 - Không đổi backend/API contract.
 - Chỉ thay đổi UI/UX và cấu trúc trình bày.
 
+## Selected Color Direction
+
+- Chosen palette: **Ocean Fresh**
+- Primary: `#0EA5E9`
+- Primary hover: `#0284C7`
+- Soft surface: `#F0F9FF`
+- Border: `#BAE6FD`
+- Theme approach: dùng customer-scoped CSS variables để tránh hardcode màu trong JSX.
+
 ## Verification Checklist
 
 1. Điều hướng đầy đủ các tab customer hoạt động bình thường.

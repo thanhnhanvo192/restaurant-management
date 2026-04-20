@@ -26,7 +26,7 @@ const staffSchema = new mongoose.Schema(
     role: {
       type: String,
       required: true,
-      enum: ["admin", "waiter", "kitchen"],
+      enum: ["admin", "waiter", "kitchen", "inventory-manager"],
     },
 
     passwordHash: {

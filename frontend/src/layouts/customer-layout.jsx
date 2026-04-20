@@ -17,10 +17,12 @@ import {
 import {
   Bell,
   ChevronDown,
+  Clock3,
   LayoutDashboard,
   ListOrdered,
   LogOut,
   MenuSquare,
+  Phone,
   Table,
   UserCircle,
   UtensilsCrossed,
@@ -141,6 +143,15 @@ export default function CustomerLayout() {
     [],
   );
 
+  const storeInfo = useMemo(
+    () => [
+      { label: "Hotline", value: "1900 1234", icon: Phone },
+      { label: "Giờ mở cửa", value: "11:00 - 22:00", icon: Clock3 },
+      { label: "Bàn trống", value: "Đặt nhanh trong ngày", icon: Table },
+    ],
+    [],
+  );
+
   const currentTitle = useMemo(() => {
     const currentItem = navigationItems.find((item) => {
       if (item.end) {
@@ -195,15 +206,15 @@ export default function CustomerLayout() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#fffaf5] text-foreground">
-      <div className="absolute w-64 h-64 rounded-full pointer-events-none -left-20 -top-16 bg-orange-200/40 blur-3xl" />
-      <div className="absolute rounded-full pointer-events-none -right-24 top-24 h-72 w-72 bg-amber-200/35 blur-3xl" />
+    <div className="customer-theme-ocean relative min-h-screen overflow-hidden bg-[hsl(var(--customer-bg))] text-foreground">
+      <div className="absolute h-64 w-64 rounded-full bg-[hsl(var(--customer-orb-a)/0.45)] blur-3xl pointer-events-none -left-20 -top-16" />
+      <div className="absolute h-72 w-72 rounded-full bg-[hsl(var(--customer-orb-b)/0.4)] blur-3xl pointer-events-none -right-24 top-24" />
 
-      <div className="relative flex flex-col w-full min-h-screen gap-4 p-3 pb-24 mx-auto max-w-350 md:p-4 md:pb-24 lg:p-6 lg:pb-6">
-        <header className="sticky top-3 z-50 rounded-3xl border border-orange-100 bg-white/90 p-3 shadow-[0_10px_30px_rgba(249,115,22,0.14)] backdrop-blur md:p-4">
+      <div className="relative mx-auto flex min-h-screen w-full max-w-350 flex-col gap-4 p-3 pb-24 md:p-4 md:pb-24 lg:p-6 lg:pb-6">
+        <header className="sticky top-3 z-50 rounded-3xl border border-[hsl(var(--customer-border))] bg-[hsl(var(--customer-surface)/0.9)] p-3 shadow-[0_10px_30px_hsl(var(--customer-primary)/0.16)] backdrop-blur md:p-4">
           <div className="flex items-center gap-3">
-            <div className="items-center hidden gap-3 px-3 py-2 rounded-2xl bg-orange-50 sm:flex">
-              <div className="flex items-center justify-center text-white bg-orange-500 shadow-lg h-9 w-9 rounded-2xl shadow-orange-500/25">
+            <div className="hidden items-center gap-3 rounded-2xl bg-[hsl(var(--customer-surface-soft))] px-3 py-2 sm:flex">
+              <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-[hsl(var(--customer-primary))] text-[hsl(var(--customer-primary-foreground))] shadow-lg shadow-[hsl(var(--customer-primary)/0.25)]">
                 <UtensilsCrossed className="w-5 h-5" />
               </div>
               <div>
@@ -230,7 +241,7 @@ export default function CustomerLayout() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="relative text-orange-600 rounded-full hover:bg-orange-50 hover:text-orange-700"
+                  className="relative rounded-full text-[hsl(var(--customer-text-accent))] hover:bg-[hsl(var(--customer-surface-soft))] hover:text-[hsl(var(--customer-text-accent))]"
                   title="Thông báo"
                 >
                   <Bell className="w-5 h-5" />
@@ -254,7 +265,7 @@ export default function CustomerLayout() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="flex h-auto items-center gap-2 rounded-full border border-orange-100 bg-orange-50/70 px-2.5 py-1.5 hover:bg-orange-100"
+                  className="flex h-auto items-center gap-2 rounded-full border border-[hsl(var(--customer-border))] bg-[hsl(var(--customer-surface-soft)/0.8)] px-2.5 py-1.5 hover:bg-[hsl(var(--customer-surface-soft))]"
                 >
                   <Avatar className="w-8 h-8">
                     <AvatarImage src={user.avatar} alt={user.name} />
@@ -315,7 +326,7 @@ export default function CustomerLayout() {
             </DropdownMenu>
           </div>
 
-          <nav className="items-center hidden gap-2 pt-3 mt-3 border-t border-orange-100 lg:flex">
+          <nav className="mt-3 hidden items-center gap-2 border-t border-[hsl(var(--customer-border))] pt-3 lg:flex">
             {navigationItems.map((item) => {
               const Icon = item.icon;
 
@@ -328,8 +339,8 @@ export default function CustomerLayout() {
                     [
                       "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium transition",
                       isActive
-                        ? "border-orange-500 bg-orange-500 text-white shadow-sm shadow-orange-500/25"
-                        : "border-orange-100 bg-orange-50/60 text-orange-700 hover:bg-orange-100",
+                        ? "border-[hsl(var(--customer-primary))] bg-[hsl(var(--customer-primary))] text-[hsl(var(--customer-primary-foreground))] shadow-sm shadow-[hsl(var(--customer-primary)/0.25)]"
+                        : "border-[hsl(var(--customer-border))] bg-[hsl(var(--customer-surface-soft)/0.65)] text-[hsl(var(--customer-text-accent))] hover:bg-[hsl(var(--customer-surface-soft))]",
                     ].join(" ")
                   }
                 >
@@ -340,12 +351,43 @@ export default function CustomerLayout() {
             })}
           </nav>
 
-          <div className="flex gap-2 pb-1 mt-3 overflow-x-auto lg:hidden">
+          <div className="mt-3 hidden items-center justify-between gap-3 rounded-2xl border border-[hsl(var(--customer-border))] bg-[hsl(var(--customer-surface-soft)/0.7)] px-4 py-3 lg:flex">
+            <div className="grid flex-1 grid-cols-3 gap-3">
+              {storeInfo.map((item) => {
+                const Icon = item.icon;
+
+                return (
+                  <div key={item.label} className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-white text-[hsl(var(--customer-primary))] shadow-sm">
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                        {item.label}
+                      </p>
+                      <p className="truncate text-sm font-semibold text-[hsl(var(--customer-text-accent))]">
+                        {item.value}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <Button
+              asChild
+              className="rounded-full bg-[hsl(var(--customer-primary))] px-4 text-sm font-semibold text-white hover:bg-[hsl(var(--customer-primary-hover))]"
+            >
+              <NavLink to="/customer/book-table">Đặt bàn ngay</NavLink>
+            </Button>
+          </div>
+
+          <div className="mt-3 flex gap-2 overflow-x-auto pb-1 lg:hidden">
             {quickActions.map((action) => (
               <NavLink
                 key={action.to}
                 to={action.to}
-                className="inline-flex shrink-0 items-center rounded-full border border-orange-100 bg-orange-50 px-3 py-1.5 text-xs font-medium text-orange-700 transition hover:bg-orange-100"
+                className="inline-flex shrink-0 items-center rounded-full border border-[hsl(var(--customer-border))] bg-[hsl(var(--customer-surface-soft))] px-3 py-1.5 text-xs font-medium text-[hsl(var(--customer-text-accent))] transition hover:bg-[hsl(var(--customer-surface-soft)/0.85)]"
               >
                 {action.label}
               </NavLink>
@@ -353,13 +395,13 @@ export default function CustomerLayout() {
           </div>
         </header>
 
-        <main className="min-h-0 flex-1 rounded-3xl border border-orange-100 bg-white/85 p-4 shadow-[0_12px_35px_rgba(249,115,22,0.10)] backdrop-blur md:p-6">
+        <main className="min-h-0 flex-1 rounded-3xl border border-[hsl(var(--customer-border))] bg-[hsl(var(--customer-surface)/0.86)] p-4 shadow-[0_12px_35px_hsl(var(--customer-primary)/0.12)] backdrop-blur md:p-6">
           <Outlet />
         </main>
       </div>
 
       {/* Bottom navigation trên mobile */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-orange-100 bg-white/95 px-2 py-2 shadow-[0_-8px_30px_rgba(249,115,22,0.08)] backdrop-blur lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-[hsl(var(--customer-border))] bg-[hsl(var(--customer-surface)/0.96)] px-2 py-2 shadow-[0_-8px_30px_hsl(var(--customer-primary)/0.1)] backdrop-blur lg:hidden">
         <div className="grid grid-cols-5 gap-1">
           {navigationItems.map((item) => {
             const Icon = item.icon;
@@ -373,8 +415,8 @@ export default function CustomerLayout() {
                   [
                     "flex flex-col items-center justify-center gap-1 rounded-2xl px-1 py-2 text-[11px] font-medium transition-colors",
                     isActive
-                      ? "bg-orange-500 text-white shadow-sm shadow-orange-500/25"
-                      : "text-muted-foreground hover:bg-orange-50 hover:text-orange-600",
+                      ? "bg-[hsl(var(--customer-primary))] text-[hsl(var(--customer-primary-foreground))] shadow-sm shadow-[hsl(var(--customer-primary)/0.25)]"
+                      : "text-muted-foreground hover:bg-[hsl(var(--customer-surface-soft))] hover:text-[hsl(var(--customer-text-accent))]",
                   ].join(" ")
                 }
               >

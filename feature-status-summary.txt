@@ -1,0 +1,91 @@
+RESTAURANT MANAGEMENT - FEATURE STATUS SUMMARY
+Date: 2026-04-20
+Scope reviewed: backend/src, frontend/src, docs/, test scripts
+Validation: npm run test:smoke (PASS: backend 8/8 suites, frontend 5/5 suites)
+
+====================================
+1) CAC CHUC NANG DA HOAN THANH
+====================================
+
+A. Nen tang backend
+- Da cau hinh env cho backend/frontend theo README.
+- Da mount day du route: /admin/*, /client/*, /auth/*.
+- Da co middleware bao mat: sanitize input, rate limit baseline, request metrics logger.
+- Da co static uploads va xu ly loi tap trung (validation, cast error, duplicate key, payload too large).
+- Da co health check endpoint: GET /health. 
+
+B. Xac thuc va phan quyen
+- Da co customer auth: /auth/login, /auth/logout, /auth/refresh, /auth/me.
+- Da co admin auth: /auth/admin/login, /auth/admin/logout, /auth/admin/refresh, /auth/admin/me.
+- Da co middleware requireCustomerAuth, requireAdminAuth.
+- Da co RBAC cho admin route theo role (admin/waiter/kitchen/inventory-manager).
+
+C. Admin APIs
+- Table management: GET/POST/PUT/DELETE /admin/tables.
+- Staff management: GET list/detail + POST + PUT + DELETE /admin/staffs, co validate va xu ly conflict email.
+- Customer management: GET list/detail + POST + PUT + DELETE /admin/customers.
+- Menu management: GET/POST/PUT/DELETE /admin/menus (co upload image middleware).
+- Order management: GET /admin/orders, POST /admin/orders, PATCH /admin/orders/:id/status.
+- Dashboard analytics API: GET /admin/dashboard (aggregation doanh thu/so lieu tong hop).
+- Statistics API: GET /admin/statistics (period/from/to + breakdown).
+- Inventory management: list/detail/create/update/delete + stock movements + rollback.
+
+D. Client APIs
+- Dashboard customer: GET /client/dashboard (co auth).
+- Table booking flow: GET /client/tables, GET /client/tables/:id, booking CRUD co auth.
+- Menu browsing: GET /client/menus.
+- Category list: GET /client/categories.
+- Customer orders: POST/GET /client/orders, GET /client/orders/:id (co auth).
+- Profile: GET/PUT profile, PUT password, PUT notification settings (co auth).
+- Address: GET/POST/PUT/DELETE /client/addresses (co auth).
+
+E. Frontend integration
+- Da co route day du cho admin pages: dashboard, tables, menu, staff, customers, orders, inventories, reports.
+- Da co route customer pages: home, dashboard, book-table, menu, orders, profile.
+- Nhieu page da goi API that (staff, table, menu, customer, order, inventory, customer flow).
+- Analytics page da goi /admin/statistics va /admin/dashboard.
+
+F. Testing / quality gate
+- Script test tong va smoke test da co.
+- Smoke test hien tai PASS toan bo bo test quan trong:
+  - Backend: server/table/menu/order/staff/customer/dashboard/statistics.
+  - Frontend: AdminTable/AdminMenu/AdminOrder/AdminStaff/AdminCustomer.
+
+
+====================================
+2) CAC CHUC NANG CHUA HOAN THANH / CON TON TAI
+====================================
+
+1. Xuat file Excel hoa don chua tich hop API that
+- frontend/src/features/orders/pages/manage-invoices-page.jsx
+- Dang la mock action + window.alert mo phong.
+
+2. Xuat bao cao tren trang analytics chua hoan tat
+- frontend/src/features/analytics/pages/analytics-dashboard-page.jsx
+- Nut export dang hien toast: "Tinh nang xuat bao cao dang duoc trien khai".
+
+3. Logout cho customer header chua goi API
+- frontend/src/shared/components/layout/customer-header.jsx
+- frontend/src/shared/components/layout/customer-site-header.jsx
+- Con TODO trong handleLogout.
+
+4. Du lieu mock van ton tai trong analytics page (fallback seed)
+- frontend/src/features/analytics/pages/analytics-dashboard-page.jsx
+- Co hang so MOCK_ANALYTICS de khoi tao state/fallback.
+
+5. Chat luong UI/test: canh bao React key tren bang customer
+- Trong luc chay frontend smoke test co warning:
+  - "Each child in a list should have a unique key prop"
+- Khong lam fail test nhung nen sua de tranh loi render tinh vi.
+
+6. Tai lieu docs/features mot phan chua dong bo voi code hien tai
+- Nhieu file docs/features van ghi "partial/incomplete/mock" cho cac module da duoc code that.
+- Nen cap nhat tai lieu de tranh hieu nham trang thai du an.
+
+
+====================================
+3) KET LUAN NGAN
+====================================
+
+- Phan lon chuc nang core cua he thong (backend APIs, auth/RBAC, admin + customer flows) da hoan thanh va co smoke test PASS.
+- Cac hang muc chua xong chu yeu nam o tinh nang export (bao cao/Excel), mot so TODO UI logout customer, mot vai diem quality/documentation can dong bo them.

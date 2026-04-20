@@ -1,0 +1,50 @@
+[
+  {
+    "_id": { "$oid": "670000000000000000000501" },
+    "name": "Bo luc lac",
+    "price": 185000,
+    "categoryId": "mon-chinh",
+    "available": true,
+    "soldCount": 128,
+    "imageUrl": "/uploads/menus/bo-luc-lac.jpg",
+    "description": "Thit bo xao mem, rau cu tuoi",
+    "createdAt": { "$date": "2026-04-02T00:00:00.000Z" },
+    "updatedAt": { "$date": "2026-04-18T00:00:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "670000000000000000000502" },
+    "name": "Com ga nuong",
+    "price": 125000,
+    "categoryId": "mon-chinh",
+    "available": true,
+    "soldCount": 231,
+    "imageUrl": "/uploads/menus/com-ga-nuong.jpg",
+    "description": "Ga nuong than hoa, com thom",
+    "createdAt": { "$date": "2026-04-02T00:10:00.000Z" },
+    "updatedAt": { "$date": "2026-04-18T00:00:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "670000000000000000000503" },
+    "name": "Khoai tay chien",
+    "price": 55000,
+    "categoryId": "mon-phu",
+    "available": true,
+    "soldCount": 300,
+    "imageUrl": "/uploads/menus/khoai-tay-chien.jpg",
+    "description": "Khoai tay chien gion",
+    "createdAt": { "$date": "2026-04-02T00:20:00.000Z" },
+    "updatedAt": { "$date": "2026-04-18T00:00:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "670000000000000000000504" },
+    "name": "Tra dao cam sa",
+    "price": 49000,
+    "categoryId": "do-uong",
+    "available": true,
+    "soldCount": 180,
+    "imageUrl": "/uploads/menus/tra-dao.jpg",
+    "description": "Tra thanh mat, it duong",
+    "createdAt": { "$date": "2026-04-02T00:30:00.000Z" },
+    "updatedAt": { "$date": "2026-04-18T00:00:00.000Z" }
+  }
+]

@@ -5,6 +5,32 @@
 @config "../../../tailwind.config.js";
 
 @layer base {
+  .customer-theme-warm {
+    --customer-bg: 32 100% 97%;
+    --customer-orb-a: 30 94% 86%;
+    --customer-orb-b: 38 96% 84%;
+    --customer-surface: 0 0% 100%;
+    --customer-surface-soft: 33 100% 96%;
+    --customer-border: 30 96% 85%;
+    --customer-primary: 24 95% 53%;
+    --customer-primary-hover: 21 90% 48%;
+    --customer-primary-foreground: 0 0% 100%;
+    --customer-text-accent: 24 84% 36%;
+  }
+
+  .customer-theme-ocean {
+    --customer-bg: 173 50% 13%;
+    --customer-orb-a: 173 44% 24%;
+    --customer-orb-b: 34 62% 58%;
+    --customer-surface: 170 28% 16%;
+    --customer-surface-soft: 173 34% 19%;
+    --customer-border: 172 22% 26%;
+    --customer-primary: 34 62% 58%;
+    --customer-primary-hover: 34 55% 50%;
+    --customer-primary-foreground: 0 0% 100%;
+    --customer-text-accent: 34 52% 44%;
+  }
+
   :root {
     /* Modern todo app color palette */
     --background: 240 10% 98%;

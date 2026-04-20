@@ -28,6 +28,7 @@ import {
   User2,
   UserCircle2,
   ListOrdered,
+  Boxes,
 } from "lucide-react";
 
 const prefixAdmin = "/admin";
@@ -63,6 +64,11 @@ const data = {
       name: "Đơn hàng",
       url: `${prefixAdmin}/orders`,
       icon: <ListOrdered />,
+    },
+    {
+      name: "Quản lý kho",
+      url: `${prefixAdmin}/inventories`,
+      icon: <Boxes />,
     },
     {
       name: "Thống kê",

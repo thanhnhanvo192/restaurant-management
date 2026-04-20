@@ -10,6 +10,7 @@ import Staff from "@/features/staff/pages/staff-page";
 import ManageCustomersPage from "@/features/customers/pages/manage-customers-page";
 import ManageInvoicesPage from "@/features/orders/pages/manage-invoices-page";
 import AnalyticsDashboardPage from "@/features/analytics/pages/analytics-dashboard-page";
+import InventoryPage from "@/features/inventory/pages/inventory-page";
 import CustomerHome from "@/features/customer-dashboard/pages/customer-home-page";
 import CustomerDashboardPage from "@/features/customer-dashboard/pages/customer-dashboard-page";
 import BookTablePage from "@/features/customer-booking/pages/book-table-page";
@@ -36,6 +37,7 @@ function App() {
             <Route path="staff" element={<Staff />} />
             <Route path="customers" element={<ManageCustomersPage />} />
             <Route path="orders" element={<ManageInvoicesPage />} />
+            <Route path="inventories" element={<InventoryPage />} />
             <Route path="reports" element={<AnalyticsDashboardPage />} />
           </Route>
           {/* Các route dành cho khách hàng */}

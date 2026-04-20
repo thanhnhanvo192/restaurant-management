@@ -40,19 +40,20 @@ const getStatusBadge = (status) => {
   const statusMap = {
     completed: {
       label: "Đã hoàn thành",
-      className: "bg-emerald-100 text-emerald-700 hover:bg-emerald-100",
+      className: "bg-sky-100 text-sky-700 hover:bg-sky-100",
     },
     pending: {
       label: "Đang chờ",
-      className: "bg-orange-100 text-orange-700 hover:bg-orange-100",
+      className:
+        "bg-[hsl(var(--customer-surface-soft))] text-[hsl(var(--customer-text-accent))] hover:bg-[hsl(var(--customer-surface-soft))]",
     },
     canceled: {
       label: "Đã hủy",
-      className: "bg-rose-100 text-rose-700 hover:bg-rose-100",
+      className: "bg-slate-100 text-slate-700 hover:bg-slate-100",
     },
     cancelled: {
       label: "Đã hủy",
-      className: "bg-rose-100 text-rose-700 hover:bg-rose-100",
+      className: "bg-slate-100 text-slate-700 hover:bg-slate-100",
     },
   };
   const config = statusMap[status] || statusMap.pending;
@@ -125,8 +126,8 @@ export default function OrderHistoryPage() {
   return (
     <div className="space-y-6">
       {/* Tiêu đề */}
-      <section className="overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-sm">
-        <div className="bg-linear-to-r from-orange-500 to-amber-400 p-5 text-white md:p-6">
+      <section className="overflow-hidden rounded-3xl border border-[hsl(var(--customer-border))] bg-white shadow-sm">
+        <div className="bg-linear-to-r from-[hsl(var(--customer-primary))] to-[hsl(var(--customer-bg))] p-5 text-white md:p-6">
           <Badge className="bg-white/20 text-white hover:bg-white/20">
             Theo dõi đơn hàng
           </Badge>
@@ -142,12 +143,12 @@ export default function OrderHistoryPage() {
       {/* Thống kê nhanh */}
       <div className="grid gap-4 md:grid-cols-3">
         {/* Tổng chi tiêu */}
-        <Card className="border-orange-100 bg-white shadow-sm">
+        <Card className="border-[hsl(var(--customer-border))] bg-white shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">Tổng chi tiêu</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">
+            <div className="text-2xl font-bold text-[hsl(var(--customer-text-accent))]">
               {(totalSpent / 1000000).toFixed(1)}M ₫
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -157,7 +158,7 @@ export default function OrderHistoryPage() {
         </Card>
 
         {/* Số lượng đơn hàng */}
-        <Card className="border-orange-100 bg-white shadow-sm">
+        <Card className="border-[hsl(var(--customer-border))] bg-white shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">Tổng đơn hàng</CardTitle>
           </CardHeader>
@@ -170,7 +171,7 @@ export default function OrderHistoryPage() {
         </Card>
 
         {/* Điểm đánh giá trung bình */}
-        <Card className="border-orange-100 bg-white shadow-sm">
+        <Card className="border-[hsl(var(--customer-border))] bg-white shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium">
               Đánh giá trung bình
@@ -186,7 +187,7 @@ export default function OrderHistoryPage() {
       </div>
 
       {/* Tìm kiếm & Lọc */}
-      <Card className="border-orange-100 bg-white shadow-sm">
+      <Card className="border-[hsl(var(--customer-border))] bg-white shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-medium">Tìm kiếm & Lọc</CardTitle>
         </CardHeader>
@@ -196,7 +197,7 @@ export default function OrderHistoryPage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
               placeholder="Tìm theo mã đơn (VD: #ORD-10005)..."
-              className="border-orange-100 bg-orange-50/30 pl-10"
+              className="border-[hsl(var(--customer-border))] bg-[hsl(var(--customer-surface-soft)/0.6)] pl-10"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -204,7 +205,7 @@ export default function OrderHistoryPage() {
 
           {/* Lọc theo trạng thái */}
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full border-orange-100 bg-orange-50/30 sm:w-45">
+            <SelectTrigger className="w-full border-[hsl(var(--customer-border))] bg-[hsl(var(--customer-surface-soft)/0.6)] sm:w-45">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -220,13 +221,13 @@ export default function OrderHistoryPage() {
       {/* Danh sách đơn hàng */}
       <div className="space-y-3">
         {loading ? (
-          <Card className="border-orange-100 bg-white shadow-sm">
+          <Card className="border-[hsl(var(--customer-border))] bg-white shadow-sm">
             <CardContent className="py-12 text-center text-muted-foreground">
               Đang tải đơn hàng...
             </CardContent>
           </Card>
         ) : !isAuthenticated ? (
-          <Card className="border-orange-100 bg-white shadow-sm">
+          <Card className="border-[hsl(var(--customer-border))] bg-white shadow-sm">
             <CardContent className="py-12 text-center">
               <FileText className="size-12 mx-auto text-muted-foreground mb-3" />
               <p className="font-medium text-foreground">
@@ -242,7 +243,7 @@ export default function OrderHistoryPage() {
           filteredOrders.map((order) => (
             <Card
               key={order.id || order.orderCode}
-              className="cursor-pointer border-orange-100 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+              className="cursor-pointer border-[hsl(var(--customer-border))] bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
               onClick={() =>
                 setExpandedOrder(
                   expandedOrder === (order.id || order.orderCode)
@@ -305,7 +306,7 @@ export default function OrderHistoryPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="flex-1 border-orange-200 text-orange-700 hover:bg-orange-50"
+                        className="flex-1 border-[hsl(var(--customer-border))] text-[hsl(var(--customer-text-accent))] hover:bg-[hsl(var(--customer-surface-soft))]"
                       >
                         <FileText className="size-4 mr-2" />
                         Chi tiết
@@ -313,7 +314,7 @@ export default function OrderHistoryPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="flex-1 border-orange-200 text-orange-700 hover:bg-orange-50"
+                        className="flex-1 border-[hsl(var(--customer-border))] text-[hsl(var(--customer-text-accent))] hover:bg-[hsl(var(--customer-surface-soft))]"
                       >
                         Đặt lại
                       </Button>
@@ -324,7 +325,7 @@ export default function OrderHistoryPage() {
             </Card>
           ))
         ) : (
-          <Card className="border-orange-100 bg-white shadow-sm">
+          <Card className="border-[hsl(var(--customer-border))] bg-white shadow-sm">
             <CardContent className="pt-6 text-center py-12">
               <FileText className="size-12 mx-auto text-muted-foreground mb-3" />
               <p className="text-muted-foreground">Không tìm thấy đơn hàng</p>

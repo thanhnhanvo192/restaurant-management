@@ -154,10 +154,10 @@ export default function MenuPage() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-orange-100 bg-white p-5 shadow-sm md:p-7">
+      <section className="overflow-hidden rounded-3xl border border-[hsl(var(--customer-border))] bg-white p-5 shadow-sm md:p-7">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-3">
-            <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100">
+            <Badge className="bg-[hsl(var(--customer-surface-soft))] text-[hsl(var(--customer-text-accent))] hover:bg-[hsl(var(--customer-surface-soft))]">
               Thực đơn hôm nay
             </Badge>
             <div>
@@ -171,9 +171,9 @@ export default function MenuPage() {
             </div>
           </div>
 
-          <Card className="border-orange-100 bg-orange-50/60">
+          <Card className="border-[hsl(var(--customer-border))] bg-linear-to-br from-[hsl(var(--customer-surface-soft))] to-white shadow-sm">
             <CardContent className="flex items-center gap-3 p-4">
-              <div className="rounded-2xl bg-orange-500 p-3 text-white">
+              <div className="rounded-2xl bg-[hsl(var(--customer-primary))] p-3 text-white">
                 <Sparkles className="h-5 w-5" />
               </div>
               <div>
@@ -195,11 +195,11 @@ export default function MenuPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Tìm món ăn, đồ uống, tráng miệng..."
-              className="h-12 rounded-full border-orange-100 bg-orange-50/40 pl-11"
+              className="h-12 rounded-full border-[hsl(var(--customer-border))] bg-[hsl(var(--customer-surface-soft)/0.65)] pl-11"
             />
           </div>
 
-          <div className="flex gap-2 overflow-x-auto pb-1 md:justify-end">
+          <div className="flex gap-2 overflow-x-auto pb-1 md:flex-wrap md:justify-end">
             {categories.map((category) => (
               <button
                 key={category.id}
@@ -208,8 +208,8 @@ export default function MenuPage() {
                 className={[
                   "whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-all",
                   categoryFilter === category.id
-                    ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20"
-                    : "border border-orange-100 bg-white text-muted-foreground hover:bg-orange-50 hover:text-orange-600",
+                    ? "bg-[hsl(var(--customer-primary))] text-white shadow-lg shadow-[hsl(var(--customer-primary)/0.22)]"
+                    : "border border-[hsl(var(--customer-border))] bg-white text-muted-foreground hover:bg-[hsl(var(--customer-surface-soft))] hover:text-[hsl(var(--customer-text-accent))]",
                 ].join(" ")}
               >
                 {category.name}
@@ -229,7 +229,7 @@ export default function MenuPage() {
             filteredItems.map((item) => (
               <Card
                 key={item.id}
-                className="group overflow-hidden border-orange-100 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-orange-100"
+                className="group overflow-hidden border-[hsl(var(--customer-border))] bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-[hsl(var(--customer-primary)/0.14)]"
               >
                 <div className="relative h-52 overflow-hidden">
                   <img
@@ -238,7 +238,7 @@ export default function MenuPage() {
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-linear-to-t from-black/40 via-black/0 to-black/0" />
-                  <Badge className="absolute left-3 top-3 bg-white/90 text-orange-700 hover:bg-white">
+                  <Badge className="absolute left-3 top-3 bg-white/90 text-[hsl(var(--customer-text-accent))] hover:bg-white">
                     {item.categoryName}
                   </Badge>
                 </div>
@@ -253,9 +253,9 @@ export default function MenuPage() {
                         {item.description}
                       </p>
                     </div>
-                    <div className="rounded-2xl bg-orange-50 px-3 py-2 text-right">
+                    <div className="rounded-2xl bg-[hsl(var(--customer-surface-soft))] px-3 py-2 text-right">
                       <p className="text-xs text-muted-foreground">Giá</p>
-                      <p className="text-lg font-bold text-orange-600">
+                      <p className="text-lg font-bold text-[hsl(var(--customer-text-accent))]">
                         {(item.price / 1000).toFixed(0)}k
                       </p>
                     </div>
@@ -269,7 +269,7 @@ export default function MenuPage() {
                     <Button
                       onClick={() => handleAddToCart(item)}
                       disabled={!item.available}
-                      className="rounded-full bg-orange-500 px-4 text-white hover:bg-orange-600"
+                      className="rounded-full bg-[hsl(var(--customer-primary))] px-4 text-white hover:bg-[hsl(var(--customer-primary-hover))]"
                     >
                       <Plus className="mr-2 h-4 w-4" />
                       {item.available ? "Thêm nhanh" : "Hết món"}
@@ -281,10 +281,10 @@ export default function MenuPage() {
           )}
         </div>
 
-        <Card className="h-fit border-orange-100 bg-white shadow-sm lg:sticky lg:top-24">
+        <Card className="h-fit border-[hsl(var(--customer-border))] bg-white shadow-sm lg:sticky lg:top-24">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <ShoppingCart className="h-5 w-5 text-orange-500" />
+              <ShoppingCart className="h-5 w-5 text-[hsl(var(--customer-primary))]" />
               Giỏ hàng nhanh
             </CardTitle>
           </CardHeader>
@@ -294,7 +294,7 @@ export default function MenuPage() {
                 {cartItems.map((item) => (
                   <div
                     key={item.id}
-                    className="rounded-2xl border border-orange-100 bg-orange-50/40 p-3"
+                    className="rounded-2xl border border-[hsl(var(--customer-border))] bg-[hsl(var(--customer-surface-soft)/0.6)] p-3"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
@@ -311,7 +311,7 @@ export default function MenuPage() {
                         onClick={() =>
                           handleUpdateQuantity(item.id, item.quantity - 1)
                         }
-                        className="rounded-full bg-white px-2 py-1 text-muted-foreground shadow-sm transition hover:text-orange-600"
+                        className="rounded-full bg-white px-2 py-1 text-muted-foreground shadow-sm transition hover:text-[hsl(var(--customer-text-accent))]"
                       >
                         <Minus className="h-3.5 w-3.5" />
                       </button>
@@ -324,7 +324,7 @@ export default function MenuPage() {
                           onClick={() =>
                             handleUpdateQuantity(item.id, item.quantity - 1)
                           }
-                          className="rounded-full p-1 text-muted-foreground hover:text-orange-600"
+                          className="rounded-full p-1 text-muted-foreground hover:text-[hsl(var(--customer-text-accent))]"
                         >
                           <Minus className="h-3.5 w-3.5" />
                         </button>
@@ -337,19 +337,19 @@ export default function MenuPage() {
                           onClick={() =>
                             handleUpdateQuantity(item.id, item.quantity + 1)
                           }
-                          className="rounded-full p-1 text-muted-foreground hover:text-orange-600"
+                          className="rounded-full p-1 text-muted-foreground hover:text-[hsl(var(--customer-text-accent))]"
                         >
                           <Plus className="h-3.5 w-3.5" />
                         </button>
                       </div>
-                      <span className="font-semibold text-orange-600">
+                      <span className="font-semibold text-[hsl(var(--customer-text-accent))]">
                         {((item.price * item.quantity) / 1000).toFixed(0)}k
                       </span>
                     </div>
                   </div>
                 ))}
 
-                <div className="rounded-2xl bg-linear-to-r from-orange-500 to-amber-400 p-4 text-white">
+                <div className="rounded-2xl bg-linear-to-r from-[hsl(var(--customer-primary))] to-sky-400 p-4 text-white">
                   <div className="flex items-center justify-between text-sm text-white/90">
                     <span>Tạm tính</span>
                     <span>{(cartTotal / 1000).toFixed(0)}k ₫</span>
@@ -359,7 +359,7 @@ export default function MenuPage() {
                     <span>{(cartTotal / 1000).toFixed(0)}k ₫</span>
                   </div>
                   <Button
-                    className="mt-4 w-full rounded-full bg-white text-orange-600 hover:bg-orange-50"
+                    className="mt-4 w-full rounded-full bg-white text-[hsl(var(--customer-text-accent))] hover:bg-[hsl(var(--customer-surface-soft))]"
                     onClick={handleCheckout}
                     disabled={submitting}
                   >
@@ -368,8 +368,8 @@ export default function MenuPage() {
                 </div>
               </div>
             ) : (
-              <div className="rounded-2xl border border-dashed border-orange-200 bg-orange-50/40 p-8 text-center">
-                <ShoppingCart className="mx-auto h-10 w-10 text-orange-400" />
+              <div className="rounded-2xl border border-dashed border-[hsl(var(--customer-border))] bg-[hsl(var(--customer-surface-soft)/0.6)] p-8 text-center">
+                <ShoppingCart className="mx-auto h-10 w-10 text-sky-400" />
                 <p className="mt-3 font-medium text-foreground">
                   Giỏ hàng đang trống
                 </p>

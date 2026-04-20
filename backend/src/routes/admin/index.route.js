@@ -5,6 +5,7 @@ import staffRoutes from "./staff.route.js";
 import customerRoutes from "./customer.route.js";
 import orderRoutes from "./order.route.js";
 import statisticsRoutes from "./statistic.route.js";
+import inventoryRoutes from "./inventory.route.js";
 import {
   authorizeAdminRoles,
   requireAdminAuth,
@@ -52,5 +53,11 @@ export default (app) => {
     requireAdminAuth,
     authorizeAdminRoles("admin"),
     statisticsRoutes,
+  );
+  app.use(
+    "/admin/inventories",
+    requireAdminAuth,
+    authorizeAdminRoles("admin", "inventory-manager"),
+    inventoryRoutes,
   );
 };
